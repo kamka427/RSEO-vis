@@ -3,37 +3,18 @@ from objects.sensor import Sensor
 from objects.waypoint import Waypoint
 from objects.drone import Drone
 from algorithms.rseo import RSEO
-import time
-import math
-import dearpygui_ext.themes as themes
-
+from utils.theme_manager import ThemeManager
+from utils.map_manager import MapManager
+from utils.graphics import Graphics
 
 dpg.create_context()
 dpg.create_viewport(width=1920, height=1080, title="SDMP Simulation")
 dpg.setup_dearpygui()
 
 
-# light_theme = themes.create_theme_imgui_light()
-# dark_theme = themes.create_theme_imgui_dark()
+themeManager = ThemeManager()
+themeManager.create_theme_selector()
 
-
-# def set_theme(sender, data):
-#     if dpg.get_value(sender) == "Light":
-#         dpg.bind_theme(light_theme)
-#     else:
-#         dpg.bind_theme(dark_theme)
-
-
-# def create_theme_selector():
-#     with dpg.window(label="Theme Selector", width=200, height=100, pos=(10, 10)):
-#         dpg.add_combo(
-#             ["Light", "Dark"], label="Theme", callback=set_theme, default_value="Dark"
-#         )
-
-from utils.theming import create_theme_selector
-
-# Call this function in your main function
-create_theme_selector()
 
 p1 = Sensor("p1", 20, 10, 150, 150, 5)
 p2 = Sensor("p2", 10, 20, 120, 120, 10)
@@ -50,36 +31,8 @@ w1 = Waypoint("w1", 100, 100, [p1, p2, p3], 10)
 w2 = Waypoint("w2", 200, 200, [p4], 15)
 waypoint_list = [w1, w2]
 
-
-def draw_dashed_circle(center, radius, color, segments=100):
-    # Calculate the angle between each segment
-    angle_step = 2 * math.pi / segments
-
-    # Calculate the start and end points of each segment
-    points = [
-        (
-            (
-                center[0] + math.cos(angle) * radius,
-                center[1] + math.sin(angle) * radius,
-            ),
-            (
-                center[0] + math.cos(angle + angle_step) * radius,
-                center[1] + math.sin(angle + angle_step) * radius,
-            ),
-        )
-        for angle in [i * angle_step for i in range(segments)]
-    ]
-
-    # Draw every other segment to create a dashed effect
-    for i in range(0, len(points), 2):
-        dpg.draw_line(p1=points[i][0], p2=points[i][1], color=color, parent=drawlist)
-
-
-def draw_simulation():
-    draw_map()
-    draw_depo()
-    draw_sensors(sensor_list)
-    draw_waypoints(waypoint_list)
+mapManager = MapManager(sensor_list, waypoint_list)
+mapManager.create_save_load()
 
 
 def create_sensor():
@@ -122,7 +75,7 @@ def delete_sensor(sender, data):
 
     dpg.configure_item(item=sensor_combo, items=sensor_list)
     dpg.set_value(item=sensor_combo, value="")
-    draw_simulation()
+    graphics.draw_simulation()
 
 
 def delete_waypoint(sender, data):
@@ -140,7 +93,7 @@ def delete_waypoint(sender, data):
 
     dpg.configure_item(item=waypoint_combo, items=waypoint_list)
     dpg.set_value(item=waypoint_combo, value="")
-    draw_simulation()
+    graphics.draw_simulation()
 
 
 def start_simulation(sender, data):
@@ -150,51 +103,7 @@ def start_simulation(sender, data):
     M = RSEO(drone, sensor_list, waypoint_list)
     print(M)
 
-    animate_drone_path(drone, M.flying_path, drawlist)
-
-
-def draw_map():
-    dpg.draw_rectangle(
-        pmin=(20, 20), pmax=(1530, 1030), fill=(0, 255, 0, 255), parent=drawlist
-    )
-
-
-def draw_depo():
-    dpg.draw_circle(
-        center=(1550 / 2, 1050 / 2),
-        radius=10,
-        color=(128, 128, 128, 255),
-        fill=(128, 128, 128, 255),
-        parent=drawlist,
-    )
-
-
-def draw_sensors(sensor_list):
-    for sensor in sensor_list:
-        dpg.draw_circle(
-            center=(sensor.x + 1550 / 2, sensor.y + 1050 / 2),
-            radius=10,
-            color=(0, 0, 0, 255),
-            fill=(0, 0, 0, 255),
-            parent=drawlist,
-        )
-
-
-def draw_waypoints(waypoint_list):
-    for waypoint in waypoint_list:
-        # draw a yellow dot
-        dpg.draw_circle(
-            center=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
-            radius=10,
-            color=(255, 255, 0, 255),
-            fill=(255, 255, 0, 255),
-            parent=drawlist,
-        )
-        draw_dashed_circle(
-            center=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
-            radius=100,
-            color=(0, 0, 255, 255),
-        )
+    graphics.animate_drone_path(drone, M.flying_path)
 
 
 with dpg.handler_registry():
@@ -238,112 +147,9 @@ with dpg.handler_registry():
         with dpg.drawlist(
             label="Map", width=1500, height=1000, parent=simulation
         ) as drawlist:
-            draw_simulation()
+            graphics = Graphics(drawlist)
+            graphics.draw_simulation(sensor_list, waypoint_list)
 
-
-def animate_drone_path(drone: Drone, waypoints: list[Waypoint], drawlist):
-    for waypoint in waypoints:
-        print(f"Drone: {drone}")
-        print(f"Waypoint: {waypoint}")
-        steps: int = max(abs(drone.x - waypoint.x), abs(drone.y - waypoint.y))
-        print(f"Steps: {steps}")
-
-        if steps == 0:
-            continue
-
-        # Calculate the amount to move in each step using integer division
-        dx = round((waypoint.x - drone.x) // steps)
-        dy = round((waypoint.y - drone.y) // steps)
-
-        drone_id = dpg.draw_circle(
-            parent=drawlist,
-            center=(drone.x + 1550 / 2, drone.y + 1050 / 2),
-            radius=10,
-            color=(255, 255, 255, 255),
-            fill=(255, 255, 255, 255),
-        )
-
-        arrow_id = dpg.draw_arrow(
-            parent=drawlist,
-            p2=(drone.x + 1550 / 2, drone.y + 1050 / 2),
-            p1=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
-            thickness=2,
-            color=(0, 0, 0, 255),
-        )
-
-        for _ in range(steps):
-            # Update the drone's position
-            drone.x += dx
-            drone.y += dy
-
-            # Draw the drone at its new position
-            dpg.configure_item(
-                drone_id,
-                center=(drone.x + 1550 / 2, drone.y + 1050 / 2),
-            )
-
-            dpg.configure_item(
-                arrow_id,
-                p2=(drone.x + 1550 / 2, drone.y + 1050 / 2),
-            )
-
-            # Pause for a short time to create the animation effect
-            time.sleep(0.01)
-
-        # Wait the hovering time
-        # time.sleep(waypoint.hovering_cost)
-
-        # change back waypoint color to yellow
-        dpg.draw_circle(
-            center=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
-            radius=10,
-            color=(255, 255, 0, 255),
-            fill=(255, 255, 0, 255),
-            parent=drawlist,
-        )
-
-
-import json
-
-
-def save_map_to_file(sensor_list, waypoint_list, filename):
-    sensor_list_dict = [sensor.to_dict() for sensor in sensor_list]
-    waypoint_list_dict = [waypoint.to_dict() for waypoint in waypoint_list]
-
-    with open(filename, "w") as f:
-        json.dump({"sensors": sensor_list_dict, "waypoints": waypoint_list_dict}, f)
-
-
-def load_map_from_file(filename):
-    with open(filename, "r") as f:
-        data = json.load(f)
-
-    sensor_list = [Sensor(**sensor) for sensor in data["sensors"]]
-    waypoint_list = [
-        Waypoint(
-            name=waypoint["name"],
-            x=waypoint["x"],
-            y=waypoint["y"],
-            reachable_sensors=[
-                Sensor(**sensor) for sensor in waypoint["reachable_sensors"]
-            ],
-            flying_cost=waypoint["flying_cost"],
-            radius=waypoint.get("radius", 100),
-        )
-        for waypoint in data["waypoints"]
-    ]
-
-    return sensor_list, waypoint_list
-
-
-save_map_to_file(sensor_list, waypoint_list, "map.json")
-
-sensor_list1, waypoint_list1 = load_map_from_file("map.json")
-for sensor in sensor_list1:
-    print(sensor)
-
-for waypoint in waypoint_list1:
-    print(waypoint)
 
 dpg.show_viewport()
 dpg.start_dearpygui()
