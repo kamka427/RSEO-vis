@@ -1,0 +1,9 @@
+class Drone:
+    def __init__(self, energy: int, storage: int):
+        self.energy = energy
+        self.storage = storage
+        self.x = 0
+        self.y = 0
+
+    def __str__(self):
+        return f"Drone(energy={self.energy}, storage={self.storage}, x={self.x}, y={self.y})"
