@@ -40,7 +40,7 @@ def redraw_simulation():
 
 sensorHandler = SensorHandler(sensor_list)
 sensorHandler.set_redraw_simulation(redraw_simulation)
-waypointHandler = WaypointHandler(waypoint_list)
+waypointHandler = WaypointHandler(waypoint_list, sensorHandler.sensor_list)
 waypointHandler.set_redraw_simulation(redraw_simulation)
 
 mapManager = MapManager(sensorHandler, waypointHandler)

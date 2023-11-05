@@ -3,10 +3,11 @@ from objects.waypoint import Waypoint
 
 
 class WaypointHandler:
-    def __init__(self, waypoint_list):
+    def __init__(self, waypoint_list, sensor_list):
         self.waypoint_list = waypoint_list
+        self.sensor_list = sensor_list
 
-    def create_waypoint(self, sender, data):
+    def create_waypoint(self):
         x_cord_w = dpg.get_value(self.x_cord_w_c)
         y_cord_w = dpg.get_value(self.y_cord_w_c)
         radius = dpg.get_value(self.radius_c)
@@ -14,7 +15,7 @@ class WaypointHandler:
         hovering_cost = dpg.get_value(self.hovering_cost_c)
 
         waypoint = Waypoint(
-            "w1", x_cord_w, y_cord_w, [], flying_cost, radius, hovering_cost
+            "w1", x_cord_w, y_cord_w, self.sensor_list, flying_cost, radius, hovering_cost
         )
         self.waypoint_list.append(waypoint)
         print(f"Waypoint {waypoint} added")
