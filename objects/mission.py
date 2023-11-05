@@ -16,6 +16,27 @@ class Mission:
         )
         return f"Mission(flying_path=[{path}], flying_cost={self.flying_cost}, hovering_cost={self.hovering_cost}, total_cost={self.total_cost})"
 
+    def __eq__(self, other):
+        if not isinstance(other, Mission):
+            return False
+        
+        for i in range(len(self.flying_path)):
+            if self.flying_path[i].name != other.flying_path[i].name:
+                return False
+            
+        if self.flying_cost != other.flying_cost:
+            return False
+        
+        if self.hovering_cost != other.hovering_cost:
+            return False
+        
+        if self.total_cost != other.total_cost:
+            return False
+            
+        return True
+    
+
+
     def remove_waypoint(self, waypoint: Waypoint):
         if waypoint in self.flying_path:
             self.flying_path.remove(waypoint)
