@@ -23,7 +23,6 @@ def MRE(drone: Drone, sensors: list[Sensor], waypoints: list[Waypoint]) -> Missi
 
     print(f"Total cost: {M.total_cost}, Energy: {drone.energy}")
 
-    
     M.add_depo()
 
     return M
@@ -45,7 +44,7 @@ def best_waypoint_ratio_reward_to_energy(
         ]
         total_reward = p.max_reward
         total_energy = p.flying_cost + p.hovering_cost
-        
+
         if total_energy == 0:
             continue
 
@@ -56,10 +55,6 @@ def best_waypoint_ratio_reward_to_energy(
             best_waypoint = p
 
         print(f"Best ratio: {best_ratio}, Best waypoint: {best_waypoint}")
-
-        
-        
-
 
     return best_waypoint
 
@@ -78,6 +73,3 @@ def is_augmentable(M: Mission, p: Waypoint, drone: Drone) -> bool:
         return False
 
     return True
-
-
-

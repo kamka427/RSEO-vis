@@ -8,7 +8,7 @@ class WaypointHandler:
         self.sensor_list = sensor_list
 
     def create_waypoint(self):
-        name =  dpg.get_value(self.name_c)
+        name = dpg.get_value(self.name_c)
         x_cord_w = dpg.get_value(self.x_cord_w_c)
         y_cord_w = dpg.get_value(self.y_cord_w_c)
         radius = dpg.get_value(self.radius_c)
@@ -16,7 +16,13 @@ class WaypointHandler:
         hovering_cost = dpg.get_value(self.hovering_cost_c)
 
         waypoint = Waypoint(
-            name, x_cord_w, y_cord_w, self.sensor_list, flying_cost, radius, hovering_cost
+            name,
+            x_cord_w,
+            y_cord_w,
+            self.sensor_list,
+            flying_cost,
+            radius,
+            hovering_cost,
         )
         self.waypoint_list.append(waypoint)
         print(f"Waypoint {waypoint} added")
@@ -48,7 +54,6 @@ class WaypointHandler:
     def set_redraw_simulation(self, redraw_simulation):
         self.redraw_simulation = redraw_simulation
 
-  
     def create_add_waypoint_window(self, width, height, pos):
         with dpg.window(label="Add Waypoint", width=width, height=height, pos=pos):
             self.name_c = dpg.add_input_text(label="Name", default_value="wX")
@@ -66,7 +71,8 @@ class WaypointHandler:
     def create_waypoint_list_window(self, width, height, pos):
         with dpg.window(label="Waypoint List", width=width, height=height, pos=pos):
             self.waypoint_combo = dpg.add_combo(
-                label="Waypoint", items=self.waypoint_list, 
+                label="Waypoint",
+                items=self.waypoint_list,
             )
             dpg.add_button(label="Delete Waypoint", callback=self.delete_waypoint)
 

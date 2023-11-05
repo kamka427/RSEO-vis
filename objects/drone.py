@@ -1,5 +1,6 @@
 from objects.waypoint import Waypoint
 
+
 class Drone:
     def __init__(self, energy: int, storage: int):
         self.energy = energy

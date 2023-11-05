@@ -54,7 +54,7 @@ class TestRSEO(unittest.TestCase):
     def test_three_waypoints(self):
         drone = Drone(100, 100)
         sensor1 = Sensor("sensor1", 10, 10, 10, 10, 10)
-        sensor2 = Sensor("sensor2", 10, 10, 100, 100, 10)
+        sensor2 = Sensor("sensor2", 20, 10, 100, 100, 10)
         sensor3 = Sensor("sensor3", 100, 10, 200, 200, 10)
         waypoint1 = Waypoint("waypoint1", 10, 10, [sensor1, sensor2], 10)
         waypoint2 = Waypoint("waypoint2", 100, 100, [sensor1, sensor2], 10)
@@ -63,9 +63,9 @@ class TestRSEO(unittest.TestCase):
         mission = Mission(
             [
                 Waypoint("depo", 0, 0, [], 0),
-                waypoint1,
-                waypoint3,
                 waypoint2,
+                waypoint3,
+                waypoint1,
                 Waypoint("depo", 0, 0, [], 0),
             ],
             30,

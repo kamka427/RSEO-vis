@@ -54,7 +54,6 @@ def best_waypoint_ratio_reward_to_storage(
             best_ratio = ratio
             best_waypoint = p
 
-
     return best_waypoint
 
 
@@ -72,5 +71,3 @@ def is_augmentable(M: Mission, p: Waypoint, drone: Drone) -> bool:
         return False
 
     return True
-
-

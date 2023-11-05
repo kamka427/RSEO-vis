@@ -11,10 +11,7 @@ class TestTravellingSalesmanProblem(unittest.TestCase):
             [Waypoint("depo", 0, 0, [], 0), Waypoint("depo", 0, 0, [], 0)], 0
         )
 
-       
-
         self.assertTrue(M == mission)
-
 
     def test_single_waypoint(self):
         waypoint1 = Waypoint("waypoint1", 10, 10, [], 10)
@@ -24,10 +21,7 @@ class TestTravellingSalesmanProblem(unittest.TestCase):
             10,
         )
 
-        
-
         self.assertTrue(M == mission)
-
 
     def test_two_waypoints(self):
         waypoint1 = Waypoint("waypoint1", 10, 10, [], 10)
@@ -43,10 +37,7 @@ class TestTravellingSalesmanProblem(unittest.TestCase):
             20,
         )
 
-        
-
         self.assertTrue(M == mission)
-
 
     def test_three_waypoints(self):
         waypoint1 = Waypoint("waypoint1", 10, 10, [], 10)
@@ -64,10 +55,7 @@ class TestTravellingSalesmanProblem(unittest.TestCase):
             30,
         )
 
-        
-
         self.assertTrue(M == mission)
-
 
     def test_four_waypoints(self):
         waypoint1 = Waypoint("waypoint1", 10, 10, [], 10)
@@ -86,7 +74,5 @@ class TestTravellingSalesmanProblem(unittest.TestCase):
             ],
             40,
         )
-
-        
 
         self.assertTrue(M == mission)

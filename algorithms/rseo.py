@@ -29,6 +29,4 @@ def RSEO(drone: Drone, sensors: list[Sensor], waypoints: list[Waypoint]) -> Miss
         )
         M.remove_waypoint(waypont_with_least_reward)
 
-
-
     return M

@@ -22,8 +22,6 @@ class MapManager:
         with open(filename, "w") as f:
             json.dump({"sensors": sensor_list_dict, "waypoints": waypoint_list_dict}, f)
 
-        
-
     def load_map_from_file(self, filename):
         with open(filename, "r") as f:
             data = json.load(f)

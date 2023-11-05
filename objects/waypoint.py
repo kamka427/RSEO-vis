@@ -51,7 +51,6 @@ class Waypoint:
             "radius": self.radius,
         }
 
-
     def update_reachable_sensors(self, sensor_list: list[Sensor]):
         self.reachable_sensors = [
             sensor
