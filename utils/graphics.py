@@ -352,10 +352,13 @@ class Graphics:
                 self.dragged_item.update_reachable_sensors(
                     self.sensorHandler.sensor_list
                 )
+                self.waypointHandler.refresh_waypoint_combo()
 
             if isinstance(self.dragged_item, Sensor):
+                self.sensorHandler.refresh_sensor_combo()
                 for waypoint in self.waypointHandler.waypoint_list:
                     waypoint.update_reachable_sensors(self.sensorHandler.sensor_list)
+                    self.waypointHandler.refresh_waypoint_combo()
 
     def mouse_release_handler(self, sender):
         if self.dragging:

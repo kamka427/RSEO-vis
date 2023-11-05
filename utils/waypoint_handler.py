@@ -47,6 +47,7 @@ class WaypointHandler:
     def set_redraw_simulation(self, redraw_simulation):
         self.redraw_simulation = redraw_simulation
 
+  
     def create_add_waypoint_window(self, width, height, pos):
         with dpg.window(label="Add Waypoint", width=width, height=height, pos=pos):
             self.x_cord_w_c = dpg.add_input_int(label="X", default_value=100)
@@ -63,6 +64,9 @@ class WaypointHandler:
     def create_waypoint_list_window(self, width, height, pos):
         with dpg.window(label="Waypoint List", width=width, height=height, pos=pos):
             self.waypoint_combo = dpg.add_combo(
-                label="Waypoint", items=self.waypoint_list
+                label="Waypoint", items=self.waypoint_list, 
             )
             dpg.add_button(label="Delete Waypoint", callback=self.delete_waypoint)
+
+    def refresh_waypoint_combo(self):
+        dpg.configure_item(self.waypoint_combo, items=self.waypoint_list)

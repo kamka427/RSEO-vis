@@ -59,3 +59,7 @@ class SensorHandler:
         with dpg.window(label="Sensor List", width=width, height=height, pos=pos):
             self.sensor_combo = dpg.add_combo(label="Sensor", items=self.sensor_list)
             dpg.add_button(label="Delete Sensor", callback=self.delete_sensor)
+
+    def refresh_sensor_combo(self):
+        dpg.configure_item(item=self.sensor_combo, items=self.sensor_list)
+        dpg.set_value(item=self.sensor_combo, value="")

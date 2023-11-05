@@ -22,9 +22,7 @@ class MapManager:
         with open(filename, "w") as f:
             json.dump({"sensors": sensor_list_dict, "waypoints": waypoint_list_dict}, f)
 
-        dpg.configure_item(
-            item=self.selected_file, items=[file for file in os.listdir() if file.endswith(".json")]
-        )
+        
 
     def load_map_from_file(self, filename):
         with open(filename, "r") as f:
