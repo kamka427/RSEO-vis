@@ -66,19 +66,18 @@ class Graphics:
                     )
 
         else:
-            image_size = 200
-            overlap = 5
+            image_size = 150
 
-            num_images_x = (1530 - 20) // image_size
-            num_images_y = (1030 - 20) // image_size
+            num_images_x = (1550) // image_size
+            num_images_y = (1050) // image_size
 
             for i in range(num_images_x):
                 for j in range(num_images_y):
                     dpg.draw_image(
                         pmin=(i * image_size, j * image_size),
                         pmax=(
-                            (i + 1) * image_size + 1 + overlap,
-                            (j + 1) * image_size + 1 + overlap,
+                            (i + 1) * image_size + 1,
+                            (j + 1) * image_size + 1,
                         ),  # Increase the size of the images by 1 pixel
                         parent=self.drawlist,
                         texture_tag="grass",
@@ -89,8 +88,8 @@ class Graphics:
             dpg.draw_circle(
                 center=(1550 / 2, 1050 / 2),
                 radius=10,
-                color=(128, 128, 128, 255),
-                fill=(128, 128, 128, 255),
+                color=(0, 0, 0, 255),
+                fill=(0, 0, 0, 255),
                 parent=self.drawlist,
             )
 
@@ -104,128 +103,158 @@ class Graphics:
             )
 
     def draw_sensors(self, sensor_list):
-        # Initialize the images or circles
+        # Remove all existing graphics if sensor_list is empty
+        if len(sensor_list) == 0:
+            self.remove_graphics(self.sensor_graphics)
+            self.sensor_graphics = []
+            return
+
+        # Initialize graphics list if it doesn't exist
         if not hasattr(self, "sensor_graphics"):
             self.sensor_graphics = []
-            for sensor in sensor_list:
-                if self.isGraphics:
-                    image_size = 50
-                    graphic_id = dpg.draw_image(
-                        pmin=(
-                            sensor.x + 1550 / 2 - image_size / 2,
-                            sensor.y + 1050 / 2 - image_size / 2,
-                        ),
-                        pmax=(
-                            sensor.x + 1550 / 2 + image_size / 2,
-                            sensor.y + 1050 / 2 + image_size / 2,
-                        ),
-                        parent=self.drawlist,
-                        texture_tag="sensor",
-                    )
-                else:
-                    graphic_id = dpg.draw_circle(
-                        center=(sensor.x + 1550 / 2, sensor.y + 1050 / 2),
-                        radius=10,
-                        color=(255, 255, 255, 255),
-                        fill=(255, 255, 255, 255),
-                        parent=self.drawlist,
-                    )
-                self.sensor_graphics.append(graphic_id)
 
-        # Update the positions of the images or circles
+        # Draw new sensors
+        for sensor in sensor_list[len(self.sensor_graphics) :]:
+            graphic_id = self.draw_sensor(sensor)
+            self.sensor_graphics.append(graphic_id)
+
+        # Update existing sensors
+        for sensor, graphic_id in zip(sensor_list, self.sensor_graphics):
+            self.update_sensor(sensor, graphic_id)
+
+    def draw_sensor(self, sensor):
+        if self.isGraphics:
+            image_size = 50
+            return dpg.draw_image(
+                pmin=(
+                    sensor.x + 1550 / 2 - image_size / 2,
+                    sensor.y + 1050 / 2 - image_size / 2,
+                ),
+                pmax=(
+                    sensor.x + 1550 / 2 + image_size / 2,
+                    sensor.y + 1050 / 2 + image_size / 2,
+                ),
+                parent=self.drawlist,
+                texture_tag="sensor",
+            )
         else:
-            for sensor, graphic_id in zip(sensor_list, self.sensor_graphics):
-                if self.isGraphics:
-                    image_size = 50
-                    dpg.configure_item(
-                        graphic_id,
-                        pmin=(
-                            sensor.x + 1550 / 2 - image_size / 2,
-                            sensor.y + 1050 / 2 - image_size / 2,
-                        ),
-                        pmax=(
-                            sensor.x + 1550 / 2 + image_size / 2,
-                            sensor.y + 1050 / 2 + image_size / 2,
-                        ),
-                    )
-                else:
-                    dpg.configure_item(
-                        graphic_id,
-                        center=(sensor.x + 1550 / 2, sensor.y + 1050 / 2),
-                    )
+            return dpg.draw_circle(
+                center=(sensor.x + 1550 / 2, sensor.y + 1050 / 2),
+                radius=10,
+                color=(255, 255, 255, 255),
+                fill=(255, 255, 255, 255),
+                parent=self.drawlist,
+            )
+
+    def update_sensor(self, sensor, graphic_id):
+        if self.isGraphics:
+            image_size = 50
+            dpg.configure_item(
+                graphic_id,
+                pmin=(
+                    sensor.x + 1550 / 2 - image_size / 2,
+                    sensor.y + 1050 / 2 - image_size / 2,
+                ),
+                pmax=(
+                    sensor.x + 1550 / 2 + image_size / 2,
+                    sensor.y + 1050 / 2 + image_size / 2,
+                ),
+            )
+        else:
+            dpg.configure_item(
+                graphic_id,
+                center=(sensor.x + 1550 / 2, sensor.y + 1050 / 2),
+            )
 
     def draw_waypoints(self, waypoint_list):
-        # Initialize the waypoints and dashed circles
+        # Remove all existing graphics if waypoint_list is empty
+        if len(waypoint_list) == 0:
+            self.remove_graphics(self.waypoint_graphics)
+            self.remove_graphics(self.waypoint_graphics_circle)
+            self.waypoint_graphics = []
+            self.waypoint_graphics_circle = []
+            return
+
+        # Initialize graphics lists if they don't exist
         if not hasattr(self, "waypoint_graphics"):
             self.waypoint_graphics = []
             self.waypoint_graphics_circle = []
-            for waypoint in waypoint_list:
-                if self.isGraphics:
-                    image_size = 50
-                    graphic_id = dpg.draw_image(
-                        pmin=(
-                            waypoint.x + 1550 / 2 - image_size / 2,
-                            waypoint.y + 1050 / 2 - image_size / 2,
-                        ),
-                        pmax=(
-                            waypoint.x + 1550 / 2 + image_size / 2,
-                            waypoint.y + 1050 / 2 + image_size / 2,
-                        ),
-                        parent=self.drawlist,
-                        texture_tag="waypoint",
-                    )
-                else:
-                    graphic_id = dpg.draw_circle(
-                        center=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
-                        radius=10,
-                        color=(255, 255, 0, 255),
-                        fill=(255, 255, 0, 255),
-                        parent=self.drawlist,
-                    )
-                self.waypoint_graphics.append(graphic_id)
 
-                # Draw a dashed circle
-                dashed_circle_id = dpg.draw_circle(
-                    center=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
-                    radius=100,
-                    color=(0, 0, 255, 255),
-                    parent=self.drawlist,
-                )
+        # Draw new waypoints
+        for waypoint in waypoint_list[len(self.waypoint_graphics) :]:
+            graphic_id = self.draw_waypoint(waypoint)
+            dashed_circle_id = self.draw_dashed_circle(waypoint)
+            self.waypoint_graphics.append(graphic_id)
+            self.waypoint_graphics_circle.append(dashed_circle_id)
 
-                self.waypoint_graphics_circle.append(dashed_circle_id)
+        # Update existing waypoints
+        for waypoint, graphic_id, dashed_circle_id in zip(
+            waypoint_list, self.waypoint_graphics, self.waypoint_graphics_circle
+        ):
+            self.update_waypoint(waypoint, graphic_id)
+            self.update_dashed_circle(waypoint, dashed_circle_id)
 
-                print("waypoint_graphics", self.waypoint_graphics)
-                print("waypoint_graphics_circle", self.waypoint_graphics_circle)
+    def remove_graphics(self, graphics_list):
+        for graphic_id in graphics_list:
+            dpg.delete_item(graphic_id)
 
-                # Update the positions of the waypoints and dashed circles
+    def draw_waypoint(self, waypoint):
+        if self.isGraphics:
+            image_size = 50
+            return dpg.draw_image(
+                pmin=(
+                    waypoint.x + 1550 / 2 - image_size / 2,
+                    waypoint.y + 1050 / 2 - image_size / 2,
+                ),
+                pmax=(
+                    waypoint.x + 1550 / 2 + image_size / 2,
+                    waypoint.y + 1050 / 2 + image_size / 2,
+                ),
+                parent=self.drawlist,
+                texture_tag="waypoint",
+            )
         else:
-            for waypoint, graphic_id, dashed_circle_id in zip(
-                waypoint_list, self.waypoint_graphics, self.waypoint_graphics_circle
-            ):
-                if self.isGraphics:
-                    image_size = 50
-                    dpg.configure_item(
-                        graphic_id,
-                        pmin=(
-                            waypoint.x + 1550 / 2 - image_size / 2,
-                            waypoint.y + 1050 / 2 - image_size / 2,
-                        ),
-                        pmax=(
-                            waypoint.x + 1550 / 2 + image_size / 2,
-                            waypoint.y + 1050 / 2 + image_size / 2,
-                        ),
-                    )
-                else:
-                    print(graphic_id)
-                    dpg.configure_item(
-                        graphic_id,
-                        center=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
-                    )
+            return dpg.draw_circle(
+                center=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
+                radius=10,
+                color=(255, 255, 0, 255),
+                fill=(255, 255, 0, 255),
+                parent=self.drawlist,
+            )
 
-                dpg.configure_item(
-                    dashed_circle_id,
-                    center=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
-                )
+    def draw_dashed_circle(self, waypoint):
+        return dpg.draw_circle(
+            center=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
+            radius=100,
+            color=(0, 0, 255, 255),
+            parent=self.drawlist,
+        )
+
+    def update_waypoint(self, waypoint, graphic_id):
+        if self.isGraphics:
+            image_size = 50
+            dpg.configure_item(
+                graphic_id,
+                pmin=(
+                    waypoint.x + 1550 / 2 - image_size / 2,
+                    waypoint.y + 1050 / 2 - image_size / 2,
+                ),
+                pmax=(
+                    waypoint.x + 1550 / 2 + image_size / 2,
+                    waypoint.y + 1050 / 2 + image_size / 2,
+                ),
+            )
+        else:
+            dpg.configure_item(
+                graphic_id,
+                center=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
+            )
+
+    def update_dashed_circle(self, waypoint, dashed_circle_id):
+        dpg.configure_item(
+            dashed_circle_id,
+            center=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
+        )
 
     def animate_drone_path(self, drone, waypoints):
         for waypoint in waypoints:
@@ -245,8 +274,8 @@ class Graphics:
                     parent=self.drawlist,
                     center=(drone.x + 1550 / 2, drone.y + 1050 / 2),
                     radius=10,
-                    color=(255, 255, 255, 255),
-                    fill=(255, 255, 255, 255),
+                    color=(0, 0, 255, 255),
+                    fill=(0, 0, 255, 255),
                 )
 
             else:
