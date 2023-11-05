@@ -7,16 +7,23 @@ from objects.mission import Mission
 def MRE(drone: Drone, sensors: list[Sensor], waypoints: list[Waypoint]) -> Mission:
     M = Mission([], 0)
 
+    for waypoint in waypoints:
+        print(f"waypoint: {waypoint}")
+
     while len(waypoints) > 0:
         p = best_waypoint_ratio_reward_to_energy(sensors, waypoints, drone)
         if is_augmentable(M, p, drone):
             M.add_waypoint(p)
 
+        print(f"""p = {p}""")
+
+        if p is None:
+            break
         waypoints.remove(p)
 
     print(f"Total cost: {M.total_cost}, Energy: {drone.energy}")
 
-    # add depo to the mission
+    
     M.add_depo()
 
     return M
@@ -38,6 +45,9 @@ def best_waypoint_ratio_reward_to_energy(
         ]
         total_reward = p.max_reward
         total_energy = p.flying_cost + p.hovering_cost
+        
+        if total_energy == 0:
+            continue
 
         ratio = total_reward / total_energy
 
@@ -46,6 +56,10 @@ def best_waypoint_ratio_reward_to_energy(
             best_waypoint = p
 
         print(f"Best ratio: {best_ratio}, Best waypoint: {best_waypoint}")
+
+        
+        
+
 
     return best_waypoint
 

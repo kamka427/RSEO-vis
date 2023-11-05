@@ -7,14 +7,14 @@ from objects.mission import Mission
 def MRS(drone: Drone, sensors: list[Sensor], waypoints: list[Waypoint]) -> Mission:
     M = Mission([], 0)
 
-    print("he")
-    print(len(waypoints))
-
     while len(waypoints) > 0:
         p = best_waypoint_ratio_reward_to_storage(sensors, waypoints, drone)
         if is_augmentable(M, p, drone):
             M.add_waypoint(p)
 
+        print(f"""p = {p}""")
+        if p is None:
+            break
         waypoints.remove(p)
 
     print(f"Total cost: {M.total_cost}, Energy: {drone.energy}")
@@ -44,6 +44,9 @@ def best_waypoint_ratio_reward_to_storage(
         total_storage = p.data_size
 
         print(f"Total reward: {total_reward}, Total storage: {total_storage}")
+
+        if total_storage == 0:
+            continue
 
         ratio = total_reward / total_storage
 
