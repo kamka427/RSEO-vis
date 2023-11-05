@@ -6,8 +6,6 @@ class WaypointHandler:
     def __init__(self, waypoint_list):
         self.waypoint_list = waypoint_list
 
-        
-
     def create_waypoint(self, sender, data):
         x_cord_w = dpg.get_value(self.x_cord_w_c)
         y_cord_w = dpg.get_value(self.y_cord_w_c)
@@ -63,5 +61,7 @@ class WaypointHandler:
 
     def create_waypoint_list_window(self, width, height, pos):
         with dpg.window(label="Waypoint List", width=width, height=height, pos=pos):
-            self.waypoint_combo = dpg.add_combo(label="Waypoint", items=self.waypoint_list)
+            self.waypoint_combo = dpg.add_combo(
+                label="Waypoint", items=self.waypoint_list
+            )
             dpg.add_button(label="Delete Waypoint", callback=self.delete_waypoint)
