@@ -9,6 +9,24 @@ class MapManager:
         self.sensor_list = sensor_list
         self.waypoint_list = waypoint_list
 
+        with dpg.window(label="Save/Load", width=200, height=100, pos=(10, 10)):
+            file_name = dpg.add_input_text(label="File Name", default_value="map.json")
+            dpg.add_button(
+                label="Save",
+                callback=lambda: self.save_map_to_file(
+                    filename=dpg.get_value(file_name)
+                ),
+            )
+            selected_file = dpg.add_listbox(
+                label="Select File",
+                items=[file for file in os.listdir() if file.endswith(".json")],
+                num_items=3,
+                callback=lambda: dpg.set_value(file_name, dpg.get_value(selected_file)),
+            )
+            dpg.add_button(
+                label="Load", callback=lambda: self.load_map_from_file("map.json")
+            )
+
     def save_map_to_file(self, filename):
         sensor_list_dict = [sensor.to_dict() for sensor in self.sensor_list]
         waypoint_list_dict = [waypoint.to_dict() for waypoint in self.waypoint_list]
@@ -34,22 +52,3 @@ class MapManager:
             )
             for waypoint in data["waypoints"]
         ]
-
-    def create_save_load(self):
-        with dpg.window(label="Save/Load", width=200, height=100, pos=(10, 10)):
-            file_name = dpg.add_input_text(label="File Name", default_value="map.json")
-            dpg.add_button(
-                label="Save",
-                callback=lambda: self.save_map_to_file(
-                    filename=dpg.get_value(file_name)
-                ),
-            )
-            selected_file = dpg.add_listbox(
-                label="Select File",
-                items=[file for file in os.listdir() if file.endswith(".json")],
-                num_items=3,
-                callback=lambda: dpg.set_value(file_name, dpg.get_value(selected_file)),
-            )
-            dpg.add_button(
-                label="Load", callback=lambda: self.load_map_from_file("map.json")
-            )

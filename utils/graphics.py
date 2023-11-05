@@ -2,6 +2,7 @@ import math
 import dearpygui.dearpygui as dpg
 import time
 
+
 class Graphics:
     def __init__(self, drawlist):
         self.drawlist = drawlist
@@ -26,22 +27,26 @@ class Graphics:
         ]
 
         for i in range(0, len(points), 2):
-            dpg.draw_line(p1=points[i][0], p2=points[i][1], color=color, parent=self.drawlist)
-
+            dpg.draw_line(
+                p1=points[i][0], p2=points[i][1], color=color, parent=self.drawlist
+            )
 
     def draw_map(self):
         dpg.draw_rectangle(
-        pmin=(20, 20), pmax=(1530, 1030), fill=(0, 255, 0, 255), parent=self.drawlist
-    )
+            pmin=(20, 20),
+            pmax=(1530, 1030),
+            fill=(0, 255, 0, 255),
+            parent=self.drawlist,
+        )
 
     def draw_depo(self):
         dpg.draw_circle(
-        center=(1550 / 2, 1050 / 2),
-        radius=10,
-        color=(128, 128, 128, 255),
-        fill=(128, 128, 128, 255),
-        parent=self.drawlist,
-    )
+            center=(1550 / 2, 1050 / 2),
+            radius=10,
+            color=(128, 128, 128, 255),
+            fill=(128, 128, 128, 255),
+            parent=self.drawlist,
+        )
 
     def draw_sensors(self, sensor_list):
         for sensor in sensor_list:
@@ -129,12 +134,9 @@ class Graphics:
             fill=(255, 255, 0, 255),
             parent=self.drawlist,
         )
-       
 
     def draw_simulation(self, sensor_list, waypoint_list):
         self.draw_map()
         self.draw_depo()
         self.draw_sensors(sensor_list)
         self.draw_waypoints(waypoint_list)
-
-    
