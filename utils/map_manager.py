@@ -22,6 +22,10 @@ class MapManager:
         with open(filename, "w") as f:
             json.dump({"sensors": sensor_list_dict, "waypoints": waypoint_list_dict}, f)
 
+        dpg.configure_item(
+            item=self.selected_file, items=[file for file in os.listdir() if file.endswith(".json")]
+        )
+
     def load_map_from_file(self, filename):
         with open(filename, "r") as f:
             data = json.load(f)
@@ -30,7 +34,6 @@ class MapManager:
             Sensor(**sensor) for sensor in data["sensors"]
         ]
 
-        print(self.sensorHandler.sensor_list)
         self.waypointHandler.waypoint_list = [
             Waypoint(
                 name=waypoint["name"],
