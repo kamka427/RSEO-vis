@@ -1,6 +1,8 @@
 import math
 import dearpygui.dearpygui as dpg
 import time
+from objects.sensor import Sensor
+from objects.waypoint import Waypoint
 
 
 class Graphics:
@@ -121,7 +123,7 @@ class Graphics:
                 time.sleep(0.01)
 
             # Wait the hovering time
-            # time.sleep(waypoint.hovering_cost)
+            time.sleep(waypoint.hovering_cost)
 
             # change back waypoint color to yellow
             self.clear_drone_waypoint_persistence(waypoint)
@@ -140,3 +142,42 @@ class Graphics:
         self.draw_depo()
         self.draw_sensors(sensor_list)
         self.draw_waypoints(waypoint_list)
+
+    def mouse_drag_handler(self, sender, sensor_list, waypoint_list):
+        mouse_pos = dpg.get_mouse_pos()
+        # if its over a sensor or waypoint, move it
+
+        print(f"mouse pos: {mouse_pos}")
+
+        # if mouse pos is over a sensor, move it
+        for sensor in sensor_list:
+            if (
+                mouse_pos[0] > sensor.x - 10
+                and mouse_pos[0] < sensor.x + 10
+                and mouse_pos[1] > sensor.y - 10
+                and mouse_pos[1] < sensor.y + 10
+            ):
+                sensor.x = mouse_pos[0]
+                sensor.y = mouse_pos[1]
+
+                print(f"sensor: {sensor}")
+
+                # redraw the sensor list
+                self.draw_sensors(sensor_list)
+
+        # if mouse pos is over a waypoint, move it
+        for waypoint in waypoint_list:
+            if (
+                mouse_pos[0] > waypoint.x - 10
+                and mouse_pos[0] < waypoint.x + 10
+                and mouse_pos[1] > waypoint.y - 10
+                and mouse_pos[1] < waypoint.y + 10
+            ):
+                waypoint.x = mouse_pos[0]
+                waypoint.y = mouse_pos[1]
+
+                print(f"waypoint: {waypoint}")
+
+                # redraw the waypoint list
+                self.draw_waypoints(waypoint_list)
+

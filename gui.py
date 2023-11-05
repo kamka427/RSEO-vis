@@ -55,17 +55,25 @@ def start_simulation(sender, data):
     waypoints = waypointHandler.waypoint_list.copy()
 
     selected_algorithm = dpg.get_value(item=algorithm_c)
+
+    M = None
     if selected_algorithm == "RSEO":
         M = RSEO(drone, sensors, waypoints)
+
     elif selected_algorithm == "MRE":
         M = MRE(drone, sensors, waypoints)
+
     elif selected_algorithm == "MRS":
         M = MRS(drone, sensors, waypoints)
 
-    print(M)
-
-    graphics.draw_simulation(sensorHandler.sensor_list, waypointHandler.waypoint_list)
-    graphics.animate_drone_path(drone, M.flying_path)
+    if M is not None:
+        print(M)
+        graphics.draw_simulation(
+            sensorHandler.sensor_list, waypointHandler.waypoint_list
+        )
+        graphics.animate_drone_path(drone, M.flying_path)
+    else:
+        print("No algorithm selected")
 
 
 window_width = 400
@@ -85,7 +93,7 @@ with dpg.handler_registry():
         pos=(window_padding, window_padding),
     ):
         algorithm_c = dpg.add_radio_button(
-            items=["RSEO", "MRE", "MRS"], horizontal=True
+            items=["RSEO", "MRE", "MRS"], horizontal=True, default_value="RSEO"
         )
         dpg.add_button(label="Run Simulation", callback=start_simulation)
 
@@ -147,6 +155,9 @@ with dpg.handler_registry():
         ) as drawlist:
             graphics = Graphics(drawlist)
             graphics.draw_simulation(sensorHandler.sensor_list, waypoint_list)
+            # graphics.set_handlers(sensorHandler, waypointHandler)
+
+    # dpg.add_mouse_drag_handler(callback=graphics.mouse_drag_handler(sender=None, sensor_list=sensorHandler.sensor_list, waypoint_list=waypointHandler.waypoint_list))
 
     mapManager.create_window(
         width=window_width,
