@@ -6,21 +6,7 @@ class WaypointHandler:
     def __init__(self, waypoint_list):
         self.waypoint_list = waypoint_list
 
-        with dpg.window(label="Add Waypoint", width=320, height=150, pos=(10, 280)):
-            self.x_cord_w_c = dpg.add_input_int(label="X", default_value=100)
-            self.y_cord_w_c = dpg.add_input_int(label="Y", default_value=100)
-            self.radius_c = dpg.add_input_int(label="Radius", default_value=100)
-            self.flying_cost_c = dpg.add_input_int(
-                label="Flying Cost", default_value=10
-            )
-            self.hovering_cost_c = dpg.add_input_int(
-                label="Hovering Cost", default_value=5
-            )
-            dpg.add_button(label="Add Waypoint", callback=self.create_waypoint)
-
-        with dpg.window(label="Waypoint List", width=200, height=100, pos=(10, 440)):
-            self.waypoint_combo = dpg.add_combo(label="Waypoint", items=waypoint_list)
-            dpg.add_button(label="Delete Waypoint", callback=self.delete_waypoint)
+        
 
     def create_waypoint(self, sender, data):
         x_cord_w = dpg.get_value(self.x_cord_w_c)
@@ -61,3 +47,21 @@ class WaypointHandler:
 
     def set_redraw_simulation(self, redraw_simulation):
         self.redraw_simulation = redraw_simulation
+
+    def create_add_waypoint_window(self, width, height, pos):
+        with dpg.window(label="Add Waypoint", width=width, height=height, pos=pos):
+            self.x_cord_w_c = dpg.add_input_int(label="X", default_value=100)
+            self.y_cord_w_c = dpg.add_input_int(label="Y", default_value=100)
+            self.radius_c = dpg.add_input_int(label="Radius", default_value=100)
+            self.flying_cost_c = dpg.add_input_int(
+                label="Flying Cost", default_value=10
+            )
+            self.hovering_cost_c = dpg.add_input_int(
+                label="Hovering Cost", default_value=5
+            )
+            dpg.add_button(label="Add Waypoint", callback=self.create_waypoint)
+
+    def create_waypoint_list_window(self, width, height, pos):
+        with dpg.window(label="Waypoint List", width=width, height=height, pos=pos):
+            self.waypoint_combo = dpg.add_combo(label="Waypoint", items=self.waypoint_list)
+            dpg.add_button(label="Delete Waypoint", callback=self.delete_waypoint)

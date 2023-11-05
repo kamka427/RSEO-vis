@@ -54,26 +54,103 @@ def start_simulation(sender, data):
     graphics.animate_drone_path(drone, M.flying_path)
 
 
-with dpg.handler_registry():
-    with dpg.window(label="Drone parameters", width=200, height=100, pos=(10, 10)):
-        energy_c = dpg.add_input_int(label="Energy", default_value=100)
-        storage_c = dpg.add_input_int(label="Storage", default_value=50)
+window_width = 400
+window_height = 100
+window_padding = 10
 
-    with dpg.window(label="Select Algorithm", width=200, height=100, pos=(10, 760)):
+canvas_width = 1500
+canvas_height = 1000
+canvas_padding = 10
+
+with dpg.handler_registry():
+    # Topbar windows
+    with dpg.window(
+        label="Select Algorithm",
+        width=window_width,
+        height=window_height,
+        pos=(window_padding, window_padding),
+    ):
         algorithm_c = dpg.add_radio_button(
             items=["RSEO", "MRE", "MRS"], horizontal=True
         )
         dpg.add_button(label="Run Simulation", callback=start_simulation)
 
+    # Sidebar windows
     with dpg.window(
-        label="Simulation", width=1550, height=1050, pos=(350, 10)
+        label="Drone parameters",
+        width=window_width,
+        height=window_height,
+        pos=(window_padding, window_height + 2 * window_padding),
+    ):
+        energy_c = dpg.add_input_int(label="Energy", default_value=100)
+        storage_c = dpg.add_input_int(label="Storage", default_value=50)
+
+    sensorHandler.create_add_sensor_window(
+        width=window_width,
+        height=window_height,
+        pos=(
+            window_padding,
+            window_height + window_height + 3 * window_padding,
+        ),
+    )
+    sensorHandler.create_sensor_list_window(
+        width=window_width,
+        height=window_height,
+        pos=(
+            window_padding,
+            window_height + 2 * window_height + 4 * window_padding,
+        ),
+    )
+
+    waypointHandler.create_add_waypoint_window(
+        width=window_width,
+        height=window_height,
+        pos=(
+            window_padding,
+            window_height + 3 * window_height + 5 * window_padding,
+        ),
+    )
+    waypointHandler.create_waypoint_list_window(
+        width=window_width,
+        height=window_height,
+        pos=(
+            window_padding,
+            window_height + 4 * window_height + 6 * window_padding,
+        ),
+    )
+
+    with dpg.window(
+        label="Simulation",
+        width=canvas_width,
+        height=canvas_height + 50,
+        pos=(window_width + 2 * window_padding, window_padding),
     ) as simulation:
         with dpg.drawlist(
-            label="Map", width=1500, height=1000, parent=simulation
+            label="Map",
+            width=canvas_width,
+            height=canvas_height,
+            parent=simulation,
         ) as drawlist:
             graphics = Graphics(drawlist)
             graphics.draw_simulation(sensorHandler.sensor_list, waypoint_list)
 
+    mapManager.create_window(
+        width=window_width,
+        height=window_height,
+        pos=(
+            window_padding,
+            window_height + 5 * window_height + 7 * window_padding,
+        ),
+    )
+
+    themeManager.create_window(
+        width=window_width,
+        height=window_height,
+        pos=(
+            window_padding,
+            window_height + 6 * window_height + 8 * window_padding,
+        ),
+    )
 
 dpg.show_viewport()
 dpg.start_dearpygui()
