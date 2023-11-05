@@ -32,6 +32,7 @@ class Waypoint:
             else 0
         )
         self.radius = radius
+        self.data_size = sum(sensor.data_size for sensor in self.reachable_sensors)
 
     def __str__(self):
         return f"Waypoint(x={self.x}, y={self.y}, reachable_sensors={self.reachable_sensors}, hovering_cost={self.hovering_cost}, max_reward={self.max_reward})"

@@ -8,6 +8,8 @@ from utils.map_manager import MapManager
 from utils.graphics import Graphics
 from utils.sensor_handler import SensorHandler
 from utils.waypoint_handler import WaypointHandler
+from algorithms.mre import MRE
+from algorithms.mrs import MRS
 
 dpg.create_context()
 dpg.create_viewport(width=1920, height=1080, title="SDMP Simulation")
@@ -49,7 +51,17 @@ def start_simulation(sender, data):
 
     print("The path for the drone:")
 
-    M = RSEO(drone, sensorHandler.sensor_list, waypointHandler.waypoint_list)
+    sensors = sensorHandler.sensor_list.copy()
+    waypoints = waypointHandler.waypoint_list.copy()
+
+    selected_algorithm = dpg.get_value(item=algorithm_c)
+    if selected_algorithm == "RSEO":
+        M = RSEO(drone, sensors, waypoints)
+    elif selected_algorithm == "MRE":
+        M = MRE(drone, sensors, waypoints)
+    elif selected_algorithm == "MRS":
+        M = MRS(drone, sensors, waypoints)
+
     print(M)
 
     graphics.draw_simulation(sensorHandler.sensor_list, waypointHandler.waypoint_list)

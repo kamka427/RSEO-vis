@@ -1,6 +1,6 @@
-from modules.knap_sack import knapSack
-from modules.greedy_set_cover import GreedySetCover
-from modules.travelling_salesman import travellingSalesmanProblem
+from algorithms.knap_sack import knapSack
+from algorithms.greedy_set_cover import GreedySetCover
+from algorithms.travelling_salesman import travellingSalesmanProblem
 
 from objects.drone import Drone
 from objects.sensor import Sensor
@@ -28,5 +28,7 @@ def RSEO(drone: Drone, sensors: list[Sensor], waypoints: list[Waypoint]) -> Miss
             removable_waypoints, key=lambda waypoint: waypoint.max_reward
         )
         M.remove_waypoint(waypont_with_least_reward)
+
+
 
     return M

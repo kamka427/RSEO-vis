@@ -6,8 +6,6 @@ class SensorHandler:
     def __init__(self, sensor_list):
         self.sensor_list = sensor_list
 
-        
-
     def create_sensor(self, sender, data):
         reward = dpg.get_value(self.reward_c)
         data_size = dpg.get_value(self.data_size_c)
@@ -45,7 +43,6 @@ class SensorHandler:
 
     def set_redraw_simulation(self, redraw_simulation):
         self.redraw_simulation = redraw_simulation
-
 
     def create_add_sensor_window(self, width, height, pos):
         with dpg.window(label="Add Sensor", width=width, height=height, pos=pos):
