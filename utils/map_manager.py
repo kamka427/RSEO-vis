@@ -2,14 +2,61 @@ import json, os
 from objects.sensor import Sensor
 from objects.waypoint import Waypoint
 import dearpygui.dearpygui as dpg
+from utils.sensor_handler import SensorHandler
+from utils.waypoint_handler import WaypointHandler
 
 
 class MapManager:
-    def __init__(self, sensor_list, waypoint_list):
-        self.sensor_list = sensor_list
-        self.waypoint_list = waypoint_list
+    def __init__(self, sensorHandler: SensorHandler, waypointHandler: WaypointHandler):
+        self.sensorHandler = sensorHandler
+        self.waypointHandler = waypointHandler
 
-        with dpg.window(label="Save/Load", width=200, height=100, pos=(10, 10)):
+    def save_map_to_file(self, filename):
+        sensor_list_dict = [
+            sensor.to_dict() for sensor in self.sensorHandler.sensor_list
+        ]
+        waypoint_list_dict = [
+            waypoint.to_dict() for waypoint in self.waypointHandler.waypoint_list
+        ]
+
+        with open(filename, "w") as f:
+            json.dump({"sensors": sensor_list_dict, "waypoints": waypoint_list_dict}, f)
+
+    def load_map_from_file(self, filename):
+        with open(filename, "r") as f:
+            data = json.load(f)
+
+        self.sensorHandler.sensor_list = [
+            Sensor(**sensor) for sensor in data["sensors"]
+        ]
+
+        print(self.sensorHandler.sensor_list)
+        self.waypointHandler.waypoint_list = [
+            Waypoint(
+                name=waypoint["name"],
+                x=waypoint["x"],
+                y=waypoint["y"],
+                sensor_list=self.sensorHandler.sensor_list,
+                flying_cost=waypoint["flying_cost"],
+                radius=waypoint.get("radius", 100),
+                hovering_cost=waypoint.get("hovering_cost", 5),
+                max_reward=waypoint.get("max_reward", 0),
+            )
+            for waypoint in data["waypoints"]
+        ]
+
+        print(self.waypointHandler.waypoint_list)
+        print("Sensors:")
+        for waypoint in self.waypointHandler.waypoint_list:
+            for sensor in waypoint.reachable_sensors:
+                print(sensor)
+
+        self.sensorHandler.redraw_simulation()
+
+        return self.sensorHandler.sensor_list, self.waypointHandler.waypoint_list
+
+    def create_window(self, width, height, pos):
+        with dpg.window(label="Save/Load", width=width, height=height, pos=pos):
             file_name = dpg.add_input_text(label="File Name", default_value="map.json")
             dpg.add_button(
                 label="Save",
@@ -26,29 +73,3 @@ class MapManager:
             dpg.add_button(
                 label="Load", callback=lambda: self.load_map_from_file("map.json")
             )
-
-    def save_map_to_file(self, filename):
-        sensor_list_dict = [sensor.to_dict() for sensor in self.sensor_list]
-        waypoint_list_dict = [waypoint.to_dict() for waypoint in self.waypoint_list]
-
-        with open(filename, "w") as f:
-            json.dump({"sensors": sensor_list_dict, "waypoints": waypoint_list_dict}, f)
-
-    def load_map_from_file(self, filename):
-        with open(filename, "r") as f:
-            data = json.load(f)
-
-        self.sensor_list = [Sensor(**sensor) for sensor in data["sensors"]]
-        self.waypoint_list = [
-            Waypoint(
-                name=waypoint["name"],
-                x=waypoint["x"],
-                y=waypoint["y"],
-                reachable_sensors=[
-                    Sensor(**sensor) for sensor in waypoint["reachable_sensors"]
-                ],
-                flying_cost=waypoint["flying_cost"],
-                radius=waypoint.get("radius", 100),
-            )
-            for waypoint in data["waypoints"]
-        ]

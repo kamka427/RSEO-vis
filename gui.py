@@ -25,12 +25,11 @@ sensor_list = [
     p4,
 ]
 
-w1 = Waypoint("w1", 100, 100, [p1, p2, p3], 10)
-w2 = Waypoint("w2", 200, 200, [p4], 15)
+w1 = Waypoint("w1", 100, 100, sensor_list, 10)
+w2 = Waypoint("w2", 200, 200, sensor_list, 15)
 waypoint_list = [w1, w2]
 
 themeManager = ThemeManager()
-mapManager = MapManager(sensor_list, waypoint_list)
 
 
 def redraw_simulation():
@@ -42,15 +41,18 @@ sensorHandler.set_redraw_simulation(redraw_simulation)
 waypointHandler = WaypointHandler(waypoint_list)
 waypointHandler.set_redraw_simulation(redraw_simulation)
 
+mapManager = MapManager(sensorHandler, waypointHandler)
+
 
 def start_simulation(sender, data):
     drone = Drone(dpg.get_value(item=energy_c), dpg.get_value(item=storage_c))
 
     print("The path for the drone:")
-    M = RSEO(drone, sensorHandler.sensor_list, waypoint_list)
+
+    M = RSEO(drone, sensorHandler.sensor_list, waypointHandler.waypoint_list)
     print(M)
 
-    graphics.draw_simulation(sensorHandler.sensor_list, waypoint_list)
+    graphics.draw_simulation(sensorHandler.sensor_list, waypointHandler.waypoint_list)
     graphics.animate_drone_path(drone, M.flying_path)
 
 
@@ -151,6 +153,7 @@ with dpg.handler_registry():
             window_height + 6 * window_height + 8 * window_padding,
         ),
     )
+
 
 dpg.show_viewport()
 dpg.start_dearpygui()
