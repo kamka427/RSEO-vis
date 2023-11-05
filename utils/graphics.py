@@ -10,113 +10,278 @@ class Graphics:
         self.drawlist = drawlist
         self.dragging = False
         self.dragged_item = None
+        self.isGraphics = True
 
-    def draw_dashed_circle(self, center, radius, color, segments=100):
-        # Calculate the angle between each segment
-        angle_step = 2 * math.pi / segments
+        width, height, channels, data = dpg.load_image("textures/sensor.png")
 
-        # Calculate the start and end points of each segment
-        points = [
-            (
-                (
-                    center[0] + math.cos(angle) * radius,
-                    center[1] + math.sin(angle) * radius,
-                ),
-                (
-                    center[0] + math.cos(angle + angle_step) * radius,
-                    center[1] + math.sin(angle + angle_step) * radius,
-                ),
-            )
-            for angle in [i * angle_step for i in range(segments)]
-        ]
+        with dpg.texture_registry():
+            dpg.add_static_texture(width, height, data, tag="sensor")
 
-        for i in range(0, len(points), 2):
-            dpg.draw_line(
-                p1=points[i][0], p2=points[i][1], color=color, parent=self.drawlist
-            )
+        width, height, channels, data = dpg.load_image("textures/waypoint.png")
+
+        with dpg.texture_registry():
+            dpg.add_static_texture(width, height, data, tag="waypoint")
+
+        width, height, channels, data = dpg.load_image("textures/grass.png")
+
+        with dpg.texture_registry():
+            dpg.add_static_texture(width, height, data, tag="grass")
+
+        width, height, channels, data = dpg.load_image("textures/drone.png")
+
+        with dpg.texture_registry():
+            dpg.add_static_texture(width, height, data, tag="drone")
+
+        width, height, channels, data = dpg.load_image("textures/depo.png")
+
+        with dpg.texture_registry():
+            dpg.add_static_texture(width, height, data, tag="depo")
+
+        self.draw_map()
 
     def draw_map(self):
-        dpg.draw_rectangle(
-            pmin=(20, 20),
-            pmax=(1530, 1030),
-            fill=(0, 255, 0, 255),
-            parent=self.drawlist,
-        )
+        if not self.isGraphics:
+            tile_size = 25
+
+            num_tiles_x = 1550 // tile_size
+            num_tiles_y = 1050 // tile_size
+
+            for i in range(num_tiles_x):
+                for j in range(num_tiles_y):
+                    dpg.draw_rectangle(
+                        pmin=(i * tile_size, j * tile_size),
+                        pmax=((i + 1) * tile_size, (j + 1) * tile_size),
+                        color=(0, 150, 0, 255),
+                        fill=(0, 150, 0, 255),
+                        parent=self.drawlist,
+                    )
+                    # draw outline
+                    dpg.draw_rectangle(
+                        pmin=(i * tile_size, j * tile_size),
+                        pmax=((i + 1) * tile_size, (j + 1) * tile_size),
+                        color=(0, 0, 0, 255),
+                        fill=(0, 0, 0, 0),
+                        thickness=1,
+                        parent=self.drawlist,
+                    )
+
+        else:
+            image_size = 200
+            overlap = 5
+
+            num_images_x = (1530 - 20) // image_size
+            num_images_y = (1030 - 20) // image_size
+
+            for i in range(num_images_x):
+                for j in range(num_images_y):
+                    dpg.draw_image(
+                        pmin=(i * image_size, j * image_size),
+                        pmax=(
+                            (i + 1) * image_size + 1 + overlap,
+                            (j + 1) * image_size + 1 + overlap,
+                        ),  # Increase the size of the images by 1 pixel
+                        parent=self.drawlist,
+                        texture_tag="grass",
+                    )
 
     def draw_depo(self):
-        dpg.draw_circle(
-            center=(1550 / 2, 1050 / 2),
-            radius=10,
-            color=(128, 128, 128, 255),
-            fill=(128, 128, 128, 255),
-            parent=self.drawlist,
-        )
+        if not self.isGraphics:
+            dpg.draw_circle(
+                center=(1550 / 2, 1050 / 2),
+                radius=10,
+                color=(128, 128, 128, 255),
+                fill=(128, 128, 128, 255),
+                parent=self.drawlist,
+            )
+
+        else:
+            image_size = 100
+            dpg.draw_image(
+                pmin=(1550 / 2 - image_size / 2, 1050 / 2 - image_size / 2),
+                pmax=(1550 / 2 + image_size / 2, 1050 / 2 + image_size / 2),
+                parent=self.drawlist,
+                texture_tag="depo",
+            )
 
     def draw_sensors(self, sensor_list):
-        for sensor in sensor_list:
-            dpg.draw_circle(
-                center=(sensor.x + 1550 / 2, sensor.y + 1050 / 2),
-                radius=10,
-                color=(255, 0, 0, 255),
-                fill=(255, 0, 0, 255),
-                parent=self.drawlist,
-            )
+        # Initialize the images or circles
+        if not hasattr(self, "sensor_graphics"):
+            self.sensor_graphics = []
+            for sensor in sensor_list:
+                if self.isGraphics:
+                    image_size = 50
+                    graphic_id = dpg.draw_image(
+                        pmin=(
+                            sensor.x + 1550 / 2 - image_size / 2,
+                            sensor.y + 1050 / 2 - image_size / 2,
+                        ),
+                        pmax=(
+                            sensor.x + 1550 / 2 + image_size / 2,
+                            sensor.y + 1050 / 2 + image_size / 2,
+                        ),
+                        parent=self.drawlist,
+                        texture_tag="sensor",
+                    )
+                else:
+                    graphic_id = dpg.draw_circle(
+                        center=(sensor.x + 1550 / 2, sensor.y + 1050 / 2),
+                        radius=10,
+                        color=(255, 255, 255, 255),
+                        fill=(255, 255, 255, 255),
+                        parent=self.drawlist,
+                    )
+                self.sensor_graphics.append(graphic_id)
+
+        # Update the positions of the images or circles
+        else:
+            for sensor, graphic_id in zip(sensor_list, self.sensor_graphics):
+                if self.isGraphics:
+                    image_size = 50
+                    dpg.configure_item(
+                        graphic_id,
+                        pmin=(
+                            sensor.x + 1550 / 2 - image_size / 2,
+                            sensor.y + 1050 / 2 - image_size / 2,
+                        ),
+                        pmax=(
+                            sensor.x + 1550 / 2 + image_size / 2,
+                            sensor.y + 1050 / 2 + image_size / 2,
+                        ),
+                    )
+                else:
+                    dpg.configure_item(
+                        graphic_id,
+                        center=(sensor.x + 1550 / 2, sensor.y + 1050 / 2),
+                    )
 
     def draw_waypoints(self, waypoint_list):
-        for waypoint in waypoint_list:
-            # draw a yellow dot
-            dpg.draw_circle(
-                center=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
-                radius=10,
-                color=(255, 255, 0, 255),
-                fill=(255, 255, 0, 255),
-                parent=self.drawlist,
-            )
-            self.draw_dashed_circle(
-                center=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
-                radius=100,
-                color=(0, 0, 255, 255),
-            )
+        # Initialize the waypoints and dashed circles
+        if not hasattr(self, "waypoint_graphics"):
+            self.waypoint_graphics = []
+            self.waypoint_graphics_circle = []
+            for waypoint in waypoint_list:
+                if self.isGraphics:
+                    image_size = 50
+                    graphic_id = dpg.draw_image(
+                        pmin=(
+                            waypoint.x + 1550 / 2 - image_size / 2,
+                            waypoint.y + 1050 / 2 - image_size / 2,
+                        ),
+                        pmax=(
+                            waypoint.x + 1550 / 2 + image_size / 2,
+                            waypoint.y + 1050 / 2 + image_size / 2,
+                        ),
+                        parent=self.drawlist,
+                        texture_tag="waypoint",
+                    )
+                else:
+                    graphic_id = dpg.draw_circle(
+                        center=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
+                        radius=10,
+                        color=(255, 255, 0, 255),
+                        fill=(255, 255, 0, 255),
+                        parent=self.drawlist,
+                    )
+                self.waypoint_graphics.append(graphic_id)
+
+                # Draw a dashed circle
+                dashed_circle_id = dpg.draw_circle(
+                    center=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
+                    radius=100,
+                    color=(0, 0, 255, 255),
+                    parent=self.drawlist,
+                )
+
+                self.waypoint_graphics_circle.append(dashed_circle_id)
+
+                print("waypoint_graphics", self.waypoint_graphics)
+                print("waypoint_graphics_circle", self.waypoint_graphics_circle)
+
+                # Update the positions of the waypoints and dashed circles
+        else:
+            for waypoint, graphic_id, dashed_circle_id in zip(
+                waypoint_list, self.waypoint_graphics, self.waypoint_graphics_circle
+            ):
+                if self.isGraphics:
+                    image_size = 50
+                    dpg.configure_item(
+                        graphic_id,
+                        pmin=(
+                            waypoint.x + 1550 / 2 - image_size / 2,
+                            waypoint.y + 1050 / 2 - image_size / 2,
+                        ),
+                        pmax=(
+                            waypoint.x + 1550 / 2 + image_size / 2,
+                            waypoint.y + 1050 / 2 + image_size / 2,
+                        ),
+                    )
+                else:
+                    print(graphic_id)
+                    dpg.configure_item(
+                        graphic_id,
+                        center=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
+                    )
+
+                dpg.configure_item(
+                    dashed_circle_id,
+                    center=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
+                )
 
     def animate_drone_path(self, drone, waypoints):
         for waypoint in waypoints:
-            steps: int = int(max((abs(drone.x - waypoint.x)), abs(drone.y - waypoint.y)))
+            steps: int = int(
+                max((abs(drone.x - waypoint.x)), abs(drone.y - waypoint.y))
+            )
 
             if steps == 0:
                 continue
 
             # Calculate the amount to move in each step using integer division
-            dx = ((waypoint.x - drone.x) / steps)
-            dy = ((waypoint.y - drone.y) / steps)
+            dx = (waypoint.x - drone.x) / steps
+            dy = (waypoint.y - drone.y) / steps
 
-            drone_id = dpg.draw_circle(
-                parent=self.drawlist,
-                center=(drone.x + 1550 / 2, drone.y + 1050 / 2),
-                radius=10,
-                color=(255, 255, 255, 255),
-                fill=(255, 255, 255, 255),
-            )
+            if not self.isGraphics:
+                drone_id = dpg.draw_circle(
+                    parent=self.drawlist,
+                    center=(drone.x + 1550 / 2, drone.y + 1050 / 2),
+                    radius=10,
+                    color=(255, 255, 255, 255),
+                    fill=(255, 255, 255, 255),
+                )
+
+            else:
+                drone_id = dpg.draw_image(
+                    pmin=(drone.x + 1550 / 2 - 50 / 2, drone.y + 1050 / 2 - 50 / 2),
+                    pmax=(drone.x + 1550 / 2 + 50 / 2, drone.y + 1050 / 2 + 50 / 2),
+                    parent=self.drawlist,
+                    texture_tag="drone",
+                )
 
             arrow_id = dpg.draw_arrow(
                 parent=self.drawlist,
                 p2=(drone.x + 1550 / 2, drone.y + 1050 / 2),
                 p1=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
                 thickness=2,
-                color=(0, 0, 0, 255),
+                color=(255, 255, 255, 255),
             )
-
-          
 
             for _ in range(steps):
                 # Update the drone's position and round the new position
-                drone.x = (drone.x + dx)
-                drone.y = (drone.y + dy)
+                drone.x = drone.x + dx
+                drone.y = drone.y + dy
 
-                # Draw the drone at its new position
-                dpg.configure_item(
-                    drone_id,
-                    center=(drone.x + 1550 / 2, drone.y + 1050 / 2),
-                )
+                if not self.isGraphics:
+                    dpg.configure_item(
+                        drone_id,
+                        center=(drone.x + 1550 / 2, drone.y + 1050 / 2),
+                    )
+
+                else:
+                    dpg.configure_item(
+                        drone_id,
+                        pmin=(drone.x + 1550 / 2 - 50 / 2, drone.y + 1050 / 2 - 50 / 2),
+                        pmax=(drone.x + 1550 / 2 + 50 / 2, drone.y + 1050 / 2 + 50 / 2),
+                    )
 
                 dpg.configure_item(
                     arrow_id,
@@ -129,20 +294,12 @@ class Graphics:
             # Wait the hovering time
             # time.sleep(waypoint.hovering_cost)
 
-            # change back waypoint color to yellow
-            self.clear_drone_waypoint_persistence(waypoint)
+            # Remove the drone and arrow
+            dpg.delete_item(drone_id)
 
-    def clear_drone_waypoint_persistence(self, waypoint):
-        dpg.draw_circle(
-            center=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
-            radius=10,
-            color=(255, 255, 0, 255),
-            fill=(255, 255, 0, 255),
-            parent=self.drawlist,
-        )
+            # change back waypoint color to yellow
 
     def draw_simulation(self, sensor_list, waypoint_list):
-        self.draw_map()
         self.draw_depo()
         self.draw_sensors(sensor_list)
         self.draw_waypoints(waypoint_list)
@@ -192,12 +349,13 @@ class Graphics:
                 self.sensorHandler.sensor_list, self.waypointHandler.waypoint_list
             )
             if isinstance(self.dragged_item, Waypoint):
-                self.dragged_item.update_reachable_sensors(self.sensorHandler.sensor_list)
+                self.dragged_item.update_reachable_sensors(
+                    self.sensorHandler.sensor_list
+                )
 
             if isinstance(self.dragged_item, Sensor):
                 for waypoint in self.waypointHandler.waypoint_list:
-                    
-                        waypoint.update_reachable_sensors(self.sensorHandler.sensor_list)
+                    waypoint.update_reachable_sensors(self.sensorHandler.sensor_list)
 
     def mouse_release_handler(self, sender):
         if self.dragging:
