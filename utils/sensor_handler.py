@@ -7,13 +7,14 @@ class SensorHandler:
         self.sensor_list = sensor_list
 
     def create_sensor(self, sender, data):
+        name = dpg.get_value(self.name_c)
         reward = dpg.get_value(self.reward_c)
         data_size = dpg.get_value(self.data_size_c)
         x_cord_s = dpg.get_value(self.x_cord_s_c)
         y_cord_s = dpg.get_value(self.y_cord_s_c)
         hovering_cost = dpg.get_value(self.hovering_cost_c)
 
-        sensor = Sensor("p1", reward, data_size, x_cord_s, y_cord_s, hovering_cost)
+        sensor = Sensor(name, reward, data_size, x_cord_s, y_cord_s, hovering_cost)
         self.sensor_list.append(sensor)
         print(f"Sensor {sensor} added")
 
@@ -46,6 +47,7 @@ class SensorHandler:
 
     def create_add_sensor_window(self, width, height, pos):
         with dpg.window(label="Add Sensor", width=width, height=height, pos=pos):
+            self.name_c = dpg.add_input_text(label="Name", default_value="pX")
             self.reward_c = dpg.add_input_int(label="Reward", default_value=100)
             self.data_size_c = dpg.add_input_int(label="Data Size", default_value=10)
             self.x_cord_s_c = dpg.add_input_int(label="X", default_value=100)

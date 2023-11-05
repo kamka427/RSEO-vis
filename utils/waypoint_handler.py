@@ -8,6 +8,7 @@ class WaypointHandler:
         self.sensor_list = sensor_list
 
     def create_waypoint(self):
+        name =  dpg.get_value(self.name_c)
         x_cord_w = dpg.get_value(self.x_cord_w_c)
         y_cord_w = dpg.get_value(self.y_cord_w_c)
         radius = dpg.get_value(self.radius_c)
@@ -15,7 +16,7 @@ class WaypointHandler:
         hovering_cost = dpg.get_value(self.hovering_cost_c)
 
         waypoint = Waypoint(
-            "w1", x_cord_w, y_cord_w, self.sensor_list, flying_cost, radius, hovering_cost
+            name, x_cord_w, y_cord_w, self.sensor_list, flying_cost, radius, hovering_cost
         )
         self.waypoint_list.append(waypoint)
         print(f"Waypoint {waypoint} added")
@@ -50,6 +51,7 @@ class WaypointHandler:
   
     def create_add_waypoint_window(self, width, height, pos):
         with dpg.window(label="Add Waypoint", width=width, height=height, pos=pos):
+            self.name_c = dpg.add_input_text(label="Name", default_value="wX")
             self.x_cord_w_c = dpg.add_input_int(label="X", default_value=100)
             self.y_cord_w_c = dpg.add_input_int(label="Y", default_value=100)
             self.radius_c = dpg.add_input_int(label="Radius", default_value=100)
