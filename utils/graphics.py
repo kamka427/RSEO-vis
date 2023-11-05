@@ -8,6 +8,8 @@ from objects.waypoint import Waypoint
 class Graphics:
     def __init__(self, drawlist):
         self.drawlist = drawlist
+        self.dragging = False
+        self.dragged_item = None
 
     def draw_dashed_circle(self, center, radius, color, segments=100):
         # Calculate the angle between each segment
@@ -78,14 +80,14 @@ class Graphics:
 
     def animate_drone_path(self, drone, waypoints):
         for waypoint in waypoints:
-            steps: int = max(abs(drone.x - waypoint.x), abs(drone.y - waypoint.y))
+            steps: int = int(max((abs(drone.x - waypoint.x)), abs(drone.y - waypoint.y)))
 
             if steps == 0:
                 continue
 
             # Calculate the amount to move in each step using integer division
-            dx = round((waypoint.x - drone.x) // steps)
-            dy = round((waypoint.y - drone.y) // steps)
+            dx = ((waypoint.x - drone.x) / steps)
+            dy = ((waypoint.y - drone.y) / steps)
 
             drone_id = dpg.draw_circle(
                 parent=self.drawlist,
@@ -103,10 +105,12 @@ class Graphics:
                 color=(0, 0, 0, 255),
             )
 
+          
+
             for _ in range(steps):
-                # Update the drone's position
-                drone.x += dx
-                drone.y += dy
+                # Update the drone's position and round the new position
+                drone.x = (drone.x + dx)
+                drone.y = (drone.y + dy)
 
                 # Draw the drone at its new position
                 dpg.configure_item(
@@ -123,7 +127,7 @@ class Graphics:
                 time.sleep(0.01)
 
             # Wait the hovering time
-            time.sleep(waypoint.hovering_cost)
+            # time.sleep(waypoint.hovering_cost)
 
             # change back waypoint color to yellow
             self.clear_drone_waypoint_persistence(waypoint)
@@ -143,41 +147,59 @@ class Graphics:
         self.draw_sensors(sensor_list)
         self.draw_waypoints(waypoint_list)
 
-    def mouse_drag_handler(self, sender, sensor_list, waypoint_list):
+    def set_handlers(self, sensorHandler, waypointHandler):
+        self.sensorHandler = sensorHandler
+        self.waypointHandler = waypointHandler
+
+    def mouse_drag_handler(self, sender):
+        HIT_THRESHOLD = 20
+
         mouse_pos = dpg.get_mouse_pos()
-        # if its over a sensor or waypoint, move it
+        mouse_pos = (mouse_pos[0] - 1550 / 2, mouse_pos[1] - 1050 / 2)
 
-        print(f"mouse pos: {mouse_pos}")
+        # convert to int
+        mouse_pos = (int(mouse_pos[0]), int(mouse_pos[1]))
 
-        # if mouse pos is over a sensor, move it
-        for sensor in sensor_list:
-            if (
-                mouse_pos[0] > sensor.x - 10
-                and mouse_pos[0] < sensor.x + 10
-                and mouse_pos[1] > sensor.y - 10
-                and mouse_pos[1] < sensor.y + 10
-            ):
-                sensor.x = mouse_pos[0]
-                sensor.y = mouse_pos[1]
+        print(mouse_pos)
 
-                print(f"sensor: {sensor}")
+        if not self.dragging:
+            for sensor in self.sensorHandler.sensor_list:
+                if (
+                    mouse_pos[0] > sensor.x - HIT_THRESHOLD
+                    and mouse_pos[0] < sensor.x + HIT_THRESHOLD
+                    and mouse_pos[1] > sensor.y - HIT_THRESHOLD
+                    and mouse_pos[1] < sensor.y + HIT_THRESHOLD
+                ):
+                    self.dragging = True
+                    self.dragged_item = sensor
+                    break
 
-                # redraw the sensor list
-                self.draw_sensors(sensor_list)
+            for waypoint in self.waypointHandler.waypoint_list:
+                if (
+                    mouse_pos[0] > waypoint.x - HIT_THRESHOLD
+                    and mouse_pos[0] < waypoint.x + HIT_THRESHOLD
+                    and mouse_pos[1] > waypoint.y - HIT_THRESHOLD
+                    and mouse_pos[1] < waypoint.y + HIT_THRESHOLD
+                ):
+                    self.dragging = True
+                    self.dragged_item = waypoint
+                    break
 
-        # if mouse pos is over a waypoint, move it
-        for waypoint in waypoint_list:
-            if (
-                mouse_pos[0] > waypoint.x - 10
-                and mouse_pos[0] < waypoint.x + 10
-                and mouse_pos[1] > waypoint.y - 10
-                and mouse_pos[1] < waypoint.y + 10
-            ):
-                waypoint.x = mouse_pos[0]
-                waypoint.y = mouse_pos[1]
+        if self.dragging:
+            self.dragged_item.x = mouse_pos[0]
+            self.dragged_item.y = mouse_pos[1]
+            self.draw_simulation(
+                self.sensorHandler.sensor_list, self.waypointHandler.waypoint_list
+            )
+            if isinstance(self.dragged_item, Waypoint):
+                self.dragged_item.update_reachable_sensors(self.sensorHandler.sensor_list)
 
-                print(f"waypoint: {waypoint}")
+            if isinstance(self.dragged_item, Sensor):
+                for waypoint in self.waypointHandler.waypoint_list:
+                    
+                        waypoint.update_reachable_sensors(self.sensorHandler.sensor_list)
 
-                # redraw the waypoint list
-                self.draw_waypoints(waypoint_list)
-
+    def mouse_release_handler(self, sender):
+        if self.dragging:
+            self.dragging = False
+            self.dragged_item = None

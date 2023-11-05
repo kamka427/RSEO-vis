@@ -155,9 +155,9 @@ with dpg.handler_registry():
         ) as drawlist:
             graphics = Graphics(drawlist)
             graphics.draw_simulation(sensorHandler.sensor_list, waypoint_list)
-            # graphics.set_handlers(sensorHandler, waypointHandler)
+            graphics.set_handlers(sensorHandler, waypointHandler)
 
-    # dpg.add_mouse_drag_handler(callback=graphics.mouse_drag_handler(sender=None, sensor_list=sensorHandler.sensor_list, waypoint_list=waypointHandler.waypoint_list))
+  
 
     mapManager.create_window(
         width=window_width,
@@ -176,6 +176,9 @@ with dpg.handler_registry():
             window_height + 6 * window_height + 8 * window_padding,
         ),
     )
+
+    dpg.add_mouse_release_handler(callback=graphics.mouse_release_handler)   
+    dpg.add_mouse_drag_handler(callback=graphics.mouse_drag_handler) 
 
 
 dpg.show_viewport()

@@ -50,3 +50,20 @@ class Waypoint:
             "max_reward": self.max_reward,
             "radius": self.radius,
         }
+
+
+    def update_reachable_sensors(self, sensor_list: list[Sensor]):
+        self.reachable_sensors = [
+            sensor
+            for sensor in sensor_list
+            if (sensor.x - self.x) ** 2 + (sensor.y - self.y) ** 2 <= self.radius**2
+        ]
+        self.hovering_cost = sum(
+            sensor.hovering_cost for sensor in self.reachable_sensors
+        )
+        self.max_reward = (
+            sum(sensor.reward for sensor in self.reachable_sensors)
+            if self.reachable_sensors
+            else 0
+        )
+        self.data_size = sum(sensor.data_size for sensor in self.reachable_sensors)
