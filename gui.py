@@ -12,8 +12,118 @@ dpg.create_viewport(width=1920, height=1080, title="SDMP Simulation")
 dpg.setup_dearpygui()
 
 
+class SensorHandler:
+    def __init__(self, sensor_list):
+        with dpg.window(label="Add Sensor", width=320, height=150, pos=(10, 120)):
+            self.reward_c = dpg.add_input_int(label="Reward", default_value=100)
+            self.data_size_c = dpg.add_input_int(label="Data Size", default_value=10)
+            self.x_cord_s_c = dpg.add_input_int(label="X", default_value=100)
+            self.y_cord_s_c = dpg.add_input_int(label="Y", default_value=100)
+            self.hovering_cost_c = dpg.add_input_int(
+                label="Hovering Cost", default_value=5
+            )
+            dpg.add_button(label="Add Sensor", callback=self.create_sensor)
+
+        with dpg.window(label="Sensor List", width=200, height=100, pos=(10, 10)):
+            self.sensor_combo = dpg.add_combo(label="Sensor", items=sensor_list)
+            dpg.add_button(label="Delete Sensor", callback=self.delete_sensor)
+
+    def create_sensor(self, sender, data):
+        reward = dpg.get_value(self.reward_c)
+        data_size = dpg.get_value(self.data_size_c)
+        x_cord_s = dpg.get_value(self.x_cord_s_c)
+        y_cord_s = dpg.get_value(self.y_cord_s_c)
+        hovering_cost = dpg.get_value(self.hovering_cost_c)
+
+        sensor = Sensor("p1", reward, data_size, x_cord_s, y_cord_s, hovering_cost)
+        sensor_list.append(sensor)
+        print(f"Sensor {sensor} added")
+
+        dpg.configure_item(item=self.sensor_combo, items=sensor_list)
+        redraw_simulation(sender, data)
+        return sensor_list
+
+    def delete_sensor(self, sender, data):
+        selected_sensor_str = dpg.get_value(item=self.sensor_combo)
+        for sensor in sensor_list:
+            if str(sensor) == selected_sensor_str:
+                selected_sensor = sensor
+                break
+        else:
+            print("No sensor selected")
+            return
+
+        sensor_list.remove(selected_sensor)
+        print(f"Sensor {selected_sensor} removed")
+
+        dpg.configure_item(item=self.sensor_combo, items=sensor_list)
+        dpg.set_value(item=self.sensor_combo, value="")
+
+        redraw_simulation(sender, data)
+        return sensor_list
+
+
+class WaypointHandler:
+    def __init__(self, waypoint_list):
+        with dpg.window(label="Add Waypoint", width=320, height=150, pos=(10, 280)):
+            self.x_cord_w_c = dpg.add_input_int(label="X", default_value=100)
+            self.y_cord_w_c = dpg.add_input_int(label="Y", default_value=100)
+            self.radius_c = dpg.add_input_int(label="Radius", default_value=100)
+            self.flying_cost_c = dpg.add_input_int(
+                label="Flying Cost", default_value=10
+            )
+            self.hovering_cost_c = dpg.add_input_int(
+                label="Hovering Cost", default_value=5
+            )
+            dpg.add_button(label="Add Waypoint", callback=self.create_waypoint)
+
+        with dpg.window(label="Waypoint List", width=200, height=100, pos=(10, 440)):
+            self.waypoint_combo = dpg.add_combo(label="Waypoint", items=waypoint_list)
+            dpg.add_button(label="Delete Waypoint", callback=self.delete_waypoint)
+
+    def create_waypoint(self, sender, data):
+        x_cord_w = dpg.get_value(self.x_cord_w_c)
+        y_cord_w = dpg.get_value(self.y_cord_w_c)
+        radius = dpg.get_value(self.radius_c)
+        flying_cost = dpg.get_value(self.flying_cost_c)
+        hovering_cost = dpg.get_value(self.hovering_cost_c)
+
+        waypoint = Waypoint(
+            "w1", x_cord_w, y_cord_w, [], flying_cost, radius, hovering_cost
+        )
+        waypoint_list.append(waypoint)
+        print(f"Waypoint {waypoint} added")
+
+        dpg.configure_item(item=self.waypoint_combo, items=waypoint_list)
+        redraw_simulation(sender, data)
+        return waypoint_list
+
+    def delete_waypoint(self, sender, data):
+        selected_waypoint_str = dpg.get_value(item=self.waypoint_combo)
+        for waypoint in waypoint_list:
+            if str(waypoint) == selected_waypoint_str:
+                selected_waypoint = waypoint
+                break
+        else:
+            print("No waypoint selected")
+            return
+
+        waypoint_list.remove(selected_waypoint)
+        print(f"Waypoint {selected_waypoint} removed")
+
+        dpg.configure_item(item=self.waypoint_combo, items=waypoint_list)
+        dpg.set_value(item=self.waypoint_combo, value="")
+
+        redraw_simulation(sender, data)
+        return waypoint_list
+
+
 themeManager = ThemeManager()
 themeManager.create_theme_selector()
+
+
+def redraw_simulation(sender, data):
+    graphics.draw_simulation(sensor_list, waypoint_list)
 
 
 p1 = Sensor("p1", 20, 10, 150, 150, 5)
@@ -34,66 +144,8 @@ waypoint_list = [w1, w2]
 mapManager = MapManager(sensor_list, waypoint_list)
 mapManager.create_save_load()
 
-
-def create_sensor():
-    reward = dpg.get_value(item=reward_c)
-    data_size = dpg.get_value(item=data_size_c)
-    x_cord = dpg.get_value(item=x_cord_s_c)
-    y_cord = dpg.get_value(item=y_cord_s_c)
-    hovering_cost = dpg.get_value(item=hovering_cost_c)
-
-    sensor = Sensor("p1", reward, data_size, x_cord, y_cord, hovering_cost)
-    sensor_list.append(sensor)
-
-    dpg.configure_item(item=sensor_combo, items=sensor_list)
-
-
-def create_waypoint():
-    x_cord = dpg.get_value(item=x_cord_w_c)
-    y_cord = dpg.get_value(item=y_cord_w_c)
-    # Reachable Sensors here
-    flying_cost = dpg.get_value(item=flying_cost_c)
-
-    waypoint = Waypoint("w1", x_cord, y_cord, [], flying_cost)
-    waypoint_list.append(waypoint)
-
-    dpg.configure_item(item=waypoint_combo, items=waypoint_list)
-
-
-def delete_sensor(sender, data):
-    selected_sensor_str = dpg.get_value(item=sensor_combo)
-    for sensor in sensor_list:
-        if str(sensor) == selected_sensor_str:
-            selected_sensor = sensor
-            break
-    else:
-        print("No sensor selected")
-        return
-
-    sensor_list.remove(selected_sensor)
-    print(f"Sensor {selected_sensor} removed")
-
-    dpg.configure_item(item=sensor_combo, items=sensor_list)
-    dpg.set_value(item=sensor_combo, value="")
-    graphics.draw_simulation()
-
-
-def delete_waypoint(sender, data):
-    selected_waypoint_str = dpg.get_value(item=waypoint_combo)
-    for waypoint in waypoint_list:
-        if str(waypoint) == selected_waypoint_str:
-            selected_waypoint = waypoint
-            break
-    else:
-        print("No waypoint selected")
-        return
-
-    waypoint_list.remove(selected_waypoint)
-    print(f"Waypoint {selected_waypoint} removed")
-
-    dpg.configure_item(item=waypoint_combo, items=waypoint_list)
-    dpg.set_value(item=waypoint_combo, value="")
-    graphics.draw_simulation()
+sensorHandler = SensorHandler(sensor_list)
+waypointHandler = WaypointHandler(waypoint_list)
 
 
 def start_simulation(sender, data):
@@ -110,30 +162,6 @@ with dpg.handler_registry():
     with dpg.window(label="Drone parameters", width=200, height=100, pos=(10, 10)):
         energy_c = dpg.add_input_int(label="Energy", default_value=100)
         storage_c = dpg.add_input_int(label="Storage", default_value=50)
-
-    with dpg.window(label="Add Sensor", width=320, height=150, pos=(10, 120)):
-        reward_c = dpg.add_input_int(label="Reward", default_value=100)
-        data_size_c = dpg.add_input_int(label="Data Size", default_value=10)
-        x_cord_s_c = dpg.add_input_int(label="X", default_value=100)
-        y_cord_s_c = dpg.add_input_int(label="Y", default_value=100)
-        hovering_cost_c = dpg.add_input_int(label="Hovering Cost", default_value=5)
-        dpg.add_button(label="Add Sensor", callback=create_sensor)
-
-    with dpg.window(label="Add Waypoint", width=320, height=150, pos=(10, 280)):
-        x_cord_w_c = dpg.add_input_int(label="X", default_value=100)
-        y_cord_w_c = dpg.add_input_int(label="Y", default_value=100)
-        radius_c = dpg.add_input_int(label="Radius", default_value=100)
-        flying_cost_c = dpg.add_input_int(label="Flying Cost", default_value=10)
-        hovering_cost_c = dpg.add_input_int(label="Hovering Cost", default_value=5)
-        dpg.add_button(label="Add Waypoint", callback=create_waypoint)
-
-    with dpg.window(label="Existing Sensors", width=320, height=150, pos=(10, 440)):
-        sensor_combo = dpg.add_combo(label="Select Sensor", items=sensor_list)
-        dpg.add_button(label="Delete Sensor", callback=delete_sensor)
-
-    with dpg.window(label="Existing Waypoints", width=320, height=150, pos=(10, 600)):
-        waypoint_combo = dpg.add_combo(label="Select Waypoint", items=waypoint_list)
-        dpg.add_button(label="Delete Waypoint", callback=delete_waypoint)
 
     with dpg.window(label="Select Algorithm", width=200, height=100, pos=(10, 760)):
         algorithm_c = dpg.add_radio_button(
