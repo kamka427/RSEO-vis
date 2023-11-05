@@ -6,6 +6,7 @@ from objects.drone import Drone
 from objects.sensor import Sensor
 from objects.waypoint import Waypoint
 from objects.mission import Mission
+from objects.depo import Depo
 
 
 """
@@ -13,9 +14,12 @@ RSEO algorithm
 """
 
 
-def RSEO(drone: Drone, sensors: list[Sensor], waypoints: list[Waypoint]) -> Mission:
+def RSEO(
+    drone: Drone, depo: Depo, sensors: list[Sensor], waypoints: list[Waypoint]
+) -> Mission:
     V_prime = knapSack(sensors, drone.storage)[1]
     P_prime = GreedySetCover(V_prime, waypoints)
+    P_prime.insert(0, Waypoint("depo", depo.x, depo.y, [], 0))
     M = travellingSalesmanProblem(P_prime)
 
     removable_waypoints = [

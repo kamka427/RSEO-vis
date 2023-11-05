@@ -2,9 +2,12 @@ from objects.drone import Drone
 from objects.sensor import Sensor
 from objects.waypoint import Waypoint
 from objects.mission import Mission
+from objects.depo import Depo
 
 
-def MRS(drone: Drone, sensors: list[Sensor], waypoints: list[Waypoint]) -> Mission:
+def MRS(
+    drone: Drone, depo: Depo, sensors: list[Sensor], waypoints: list[Waypoint]
+) -> Mission:
     M = Mission([], 0)
 
     while len(waypoints) > 0:
@@ -20,7 +23,7 @@ def MRS(drone: Drone, sensors: list[Sensor], waypoints: list[Waypoint]) -> Missi
     print(f"Total cost: {M.total_cost}, Energy: {drone.energy}")
 
     # add depo to the mission
-    M.add_depo()
+    M.add_depo(depo)
 
     return M
 

@@ -10,6 +10,7 @@ from utils.sensor_handler import SensorHandler
 from utils.waypoint_handler import WaypointHandler
 from algorithms.mre import MRE
 from algorithms.mrs import MRS
+from objects.depo import Depo
 
 dpg.create_context()
 dpg.create_viewport(width=1920, height=1080, title="SDMP Simulation")
@@ -31,11 +32,13 @@ w1 = Waypoint("w1", 100, 100, sensor_list, 10)
 w2 = Waypoint("w2", 200, 200, sensor_list, 15)
 waypoint_list = [w1, w2]
 
-themeManager = ThemeManager()
+depo = Depo(0, 0)
 
 
 def redraw_simulation():
-    graphics.draw_simulation(sensorHandler.sensor_list, waypointHandler.waypoint_list)
+    graphics.draw_simulation(
+        depo, sensorHandler.sensor_list, waypointHandler.waypoint_list
+    )
 
 
 sensorHandler = SensorHandler(sensor_list)
@@ -58,18 +61,18 @@ def start_simulation(sender, data):
 
     M = None
     if selected_algorithm == "RSEO":
-        M = RSEO(drone, sensors, waypoints)
+        M = RSEO(drone, depo, sensors, waypoints)
 
     elif selected_algorithm == "MRE":
-        M = MRE(drone, sensors, waypoints)
+        M = MRE(drone, depo, sensors, waypoints)
 
     elif selected_algorithm == "MRS":
-        M = MRS(drone, sensors, waypoints)
+        M = MRS(drone, depo, sensors, waypoints)
 
     if M is not None:
         print(M)
         graphics.draw_simulation(
-            sensorHandler.sensor_list, waypointHandler.waypoint_list
+            depo, sensorHandler.sensor_list, waypointHandler.waypoint_list
         )
         graphics.animate_drone_path(drone, M.flying_path)
     else:
@@ -154,8 +157,8 @@ with dpg.handler_registry():
             parent=simulation,
         ) as drawlist:
             graphics = Graphics(drawlist)
-            graphics.draw_simulation(sensorHandler.sensor_list, waypoint_list)
-            graphics.set_handlers(sensorHandler, waypointHandler)
+            graphics.draw_simulation(depo, sensorHandler.sensor_list, waypoint_list)
+            graphics.set_handlers(depo, sensorHandler, waypointHandler)
 
     mapManager.create_window(
         width=window_width,
@@ -165,6 +168,8 @@ with dpg.handler_registry():
             window_height + 5 * window_height + 7 * window_padding,
         ),
     )
+
+    themeManager = ThemeManager(graphics.toggle_graphics)
 
     themeManager.create_window(
         width=window_width,

@@ -3,9 +3,11 @@ import dearpygui_ext.themes as themes
 
 
 class ThemeManager:
-    def __init__(self):
+    def __init__(self, toggle_graphics):
         self.light_theme = themes.create_theme_imgui_light()
         self.dark_theme = themes.create_theme_imgui_dark()
+
+        self.toggle_graphics = toggle_graphics
 
     def set_theme(self, sender, data):
         if dpg.get_value(sender) == "Light":
@@ -21,3 +23,4 @@ class ThemeManager:
                 callback=self.set_theme,
                 default_value="Dark",
             )
+            dpg.add_button(label="Toggle Graphics", callback=self.toggle_graphics)

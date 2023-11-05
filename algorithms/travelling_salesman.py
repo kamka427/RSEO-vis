@@ -13,9 +13,6 @@ This function returns the less energy consuming path for the given waypoints fro
 def travellingSalesmanProblem(
     selected_waypoints: list[Waypoint],
 ) -> Mission:
-    # Add the depo to the list of selected waypoints
-    selected_waypoints.insert(0, Waypoint("depo", 0, 0, set(), 0))
-
     # Initialize the list of vertices
     vertex = []
     s = 0  # starts from the depo

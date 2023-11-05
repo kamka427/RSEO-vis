@@ -10,34 +10,40 @@ class Graphics:
         self.drawlist = drawlist
         self.dragging = False
         self.dragged_item = None
-        self.isGraphics = True
+        self.isGraphics = False
 
-        width, height, channels, data = dpg.load_image("textures/sensor.png")
-
-        with dpg.texture_registry():
-            dpg.add_static_texture(width, height, data, tag="sensor")
-
-        width, height, channels, data = dpg.load_image("textures/waypoint.png")
-
-        with dpg.texture_registry():
-            dpg.add_static_texture(width, height, data, tag="waypoint")
-
-        width, height, channels, data = dpg.load_image("textures/grass.png")
-
-        with dpg.texture_registry():
-            dpg.add_static_texture(width, height, data, tag="grass")
-
-        width, height, channels, data = dpg.load_image("textures/drone.png")
-
-        with dpg.texture_registry():
-            dpg.add_static_texture(width, height, data, tag="drone")
-
-        width, height, channels, data = dpg.load_image("textures/depo.png")
-
-        with dpg.texture_registry():
-            dpg.add_static_texture(width, height, data, tag="depo")
+        self.load_texture("textures/sensor.png", "sensor")
+        self.load_texture("textures/waypoint.png", "waypoint")
+        self.load_texture("textures/grass.png", "grass")
+        self.load_texture("textures/drone.png", "drone")
+        self.load_texture("textures/depo.png", "depo")
 
         self.draw_map()
+
+    def toggle_graphics(self):
+        self.isGraphics = not self.isGraphics
+
+        # Remove all existing graphics
+        dpg.delete_item(self.depo_id)
+        self.remove_graphics(self.sensor_graphics)
+        self.remove_graphics(self.waypoint_graphics)
+        self.remove_graphics(self.waypoint_graphics_circle)
+        self.depo_id = None
+        self.sensor_graphics = []
+        self.waypoint_graphics = []
+        self.waypoint_graphics_circle = []
+
+        self.draw_map()
+        self.draw_simulation(
+            self.depo,
+            self.sensorHandler.sensor_list,
+            self.waypointHandler.waypoint_list,
+        )
+
+    def load_texture(self, image_path, tag):
+        width, height, channels, data = dpg.load_image(image_path)
+        with dpg.texture_registry():
+            dpg.add_static_texture(width, height, data, tag=tag)
 
     def draw_map(self):
         if not self.isGraphics:
@@ -83,24 +89,45 @@ class Graphics:
                         texture_tag="grass",
                     )
 
-    def draw_depo(self):
-        if not self.isGraphics:
-            dpg.draw_circle(
-                center=(1550 / 2, 1050 / 2),
+    def calculate_depo_position_and_size(self, depo, image_size):
+        pmin = (depo.x + 1550 / 2 - image_size / 2, depo.y + 1050 / 2 - image_size / 2)
+        pmax = (depo.x + 1550 / 2 + image_size / 2, depo.y + 1050 / 2 + image_size / 2)
+        center = (depo.x + 1550 / 2, depo.y + 1050 / 2)
+        return pmin, pmax, center
+
+    def create_depo(self, depo):
+        image_size = 100
+        pmin, pmax, center = self.calculate_depo_position_and_size(depo, image_size)
+
+        if self.isGraphics:
+            self.depo_id = dpg.draw_image(
+                pmin=pmin, pmax=pmax, parent=self.drawlist, texture_tag="depo"
+            )
+        else:
+            self.depo_id = dpg.draw_circle(
+                center=center,
                 radius=10,
                 color=(0, 0, 0, 255),
                 fill=(0, 0, 0, 255),
                 parent=self.drawlist,
             )
 
+    def update_depo(self, depo):
+        image_size = 100
+        pmin, pmax, center = self.calculate_depo_position_and_size(depo, image_size)
+
+        if self.isGraphics:
+            dpg.configure_item(self.depo_id, pmin=pmin, pmax=pmax)
         else:
-            image_size = 100
-            dpg.draw_image(
-                pmin=(1550 / 2 - image_size / 2, 1050 / 2 - image_size / 2),
-                pmax=(1550 / 2 + image_size / 2, 1050 / 2 + image_size / 2),
-                parent=self.drawlist,
-                texture_tag="depo",
-            )
+            dpg.configure_item(self.depo_id, center=center)
+
+    def draw_depo(self, depo):
+        if not hasattr(self, "depo_id"):
+            self.create_depo(depo)
+        else:
+            if self.depo_id is None:
+                self.create_depo(depo)
+            self.update_depo(depo)
 
     def draw_sensors(self, sensor_list):
         # Remove all existing graphics if sensor_list is empty
@@ -257,6 +284,8 @@ class Graphics:
         )
 
     def animate_drone_path(self, drone, waypoints):
+        drone.x = self.depo.x
+        drone.y = self.depo.y
         for waypoint in waypoints:
             steps: int = int(
                 max((abs(drone.x - waypoint.x)), abs(drone.y - waypoint.y))
@@ -328,14 +357,15 @@ class Graphics:
 
             # change back waypoint color to yellow
 
-    def draw_simulation(self, sensor_list, waypoint_list):
-        self.draw_depo()
+    def draw_simulation(self, depo, sensor_list, waypoint_list):
+        self.draw_depo(depo)
         self.draw_sensors(sensor_list)
         self.draw_waypoints(waypoint_list)
 
-    def set_handlers(self, sensorHandler, waypointHandler):
+    def set_handlers(self, depo, sensorHandler, waypointHandler):
         self.sensorHandler = sensorHandler
         self.waypointHandler = waypointHandler
+        self.depo = depo
 
     def mouse_drag_handler(self, sender):
         HIT_THRESHOLD = 20
@@ -349,6 +379,16 @@ class Graphics:
         print(mouse_pos)
 
         if not self.dragging:
+            # depo
+            if (
+                mouse_pos[0] > self.depo.x - HIT_THRESHOLD
+                and mouse_pos[0] < self.depo.x + HIT_THRESHOLD
+                and mouse_pos[1] > self.depo.y - HIT_THRESHOLD
+                and mouse_pos[1] < self.depo.y + HIT_THRESHOLD
+            ):
+                self.dragging = True
+                self.dragged_item = self.depo
+
             for sensor in self.sensorHandler.sensor_list:
                 if (
                     mouse_pos[0] > sensor.x - HIT_THRESHOLD
@@ -375,7 +415,9 @@ class Graphics:
             self.dragged_item.x = mouse_pos[0]
             self.dragged_item.y = mouse_pos[1]
             self.draw_simulation(
-                self.sensorHandler.sensor_list, self.waypointHandler.waypoint_list
+                self.depo,
+                self.sensorHandler.sensor_list,
+                self.waypointHandler.waypoint_list,
             )
             if isinstance(self.dragged_item, Waypoint):
                 self.dragged_item.update_reachable_sensors(

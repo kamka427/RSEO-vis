@@ -2,9 +2,12 @@ from objects.drone import Drone
 from objects.sensor import Sensor
 from objects.waypoint import Waypoint
 from objects.mission import Mission
+from objects.depo import Depo
 
 
-def MRE(drone: Drone, sensors: list[Sensor], waypoints: list[Waypoint]) -> Mission:
+def MRE(
+    drone: Drone, depo: Depo, sensors: list[Sensor], waypoints: list[Waypoint]
+) -> Mission:
     M = Mission([], 0)
 
     for waypoint in waypoints:
@@ -23,7 +26,7 @@ def MRE(drone: Drone, sensors: list[Sensor], waypoints: list[Waypoint]) -> Missi
 
     print(f"Total cost: {M.total_cost}, Energy: {drone.energy}")
 
-    M.add_depo()
+    M.add_depo(depo)
 
     return M
 

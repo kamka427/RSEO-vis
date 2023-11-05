@@ -1,4 +1,5 @@
 from objects.waypoint import Waypoint
+from objects.depo import Depo
 
 
 class Mission:
@@ -49,16 +50,16 @@ class Mission:
             self.hovering_cost += waypoint.hovering_cost
             self.total_cost += waypoint.flying_cost + waypoint.hovering_cost
 
-    def add_depo(self):
+    def add_depo(self, depo: Depo):
         # add to the beginning of the mission
-        depo = Waypoint(
+        w_depo = Waypoint(
             name="depo",
-            x=0,
-            y=0,
+            x=depo.x,
+            y=depo.y,
             sensor_list=[],
             flying_cost=0,
             hovering_cost=0,
             max_reward=0,
         )
-        self.flying_path.insert(0, depo)
-        self.flying_path.append(depo)
+        self.flying_path.insert(0, w_depo)
+        self.flying_path.append(w_depo)
