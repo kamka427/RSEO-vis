@@ -42,6 +42,7 @@ class Mission:
             self.flying_cost -= waypoint.flying_cost
             self.hovering_cost -= waypoint.hovering_cost
             self.total_cost -= waypoint.flying_cost + waypoint.hovering_cost
+            self.data_size -= waypoint.data_size
 
     def add_waypoint(self, waypoint: Waypoint):
         if waypoint not in self.flying_path:
@@ -49,6 +50,7 @@ class Mission:
             self.flying_cost += waypoint.flying_cost
             self.hovering_cost += waypoint.hovering_cost
             self.total_cost += waypoint.flying_cost + waypoint.hovering_cost
+            self.data_size += waypoint.data_size
 
     def add_depo(self, depo: Depo):
         # add to the beginning of the mission

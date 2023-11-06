@@ -51,6 +51,8 @@ sensorHandler = SensorHandler(sensor_list)
 sensorHandler.set_redraw_simulation(redraw_simulation)
 waypointHandler = WaypointHandler(waypoint_list, sensorHandler.sensor_list)
 waypointHandler.set_redraw_simulation(redraw_simulation)
+droneHandler = DroneHandler(drone_list=drone_list)
+
 
 mapManager = MapManager(sensorHandler, waypointHandler)
 
@@ -72,24 +74,23 @@ def start_simulation(sender, data):
         if selected_algorithm == "RSEO":
             M = RSEO(drone, depo, sensors, waypoints)
         elif selected_algorithm == "MRE":
-            M = MRE(drone, depo, sensors, waypoints)
+            M = MRE(drone, depo, sensors, waypoints.copy())
         elif selected_algorithm == "MRS":
-            M = MRS(drone, depo, sensors, waypoints)
+            M = MRS(drone, depo, sensors, waypoints.copy())
 
         if M is not None:
             print(M)
 
-
             if len(M.flying_path) > 2:
-                drone_paths.append((drone, M.flying_path))  
+                graphics.draw_mission_info(drone, M, i)
+                drone_paths.append((drone, M.flying_path))
             else:
-                print("No path found")  
+                print("No path found")
                 break
 
             # Remove visited waypoints from the list for the next drone
             waypoints = [wp for wp in waypoints if wp not in M.flying_path]
             print("len waypoints", len(waypoints))
-
 
         else:
             print("No algorithm selected")
@@ -121,12 +122,23 @@ with dpg.handler_registry():
 
     # Sidebar windows
 
+    droneHandler.create_add_drone_window(
+        width=window_width,
+        height=window_height,
+        pos=(window_padding, window_height + 2 * window_padding),
+    )
+    droneHandler.create_drone_list_window(
+        width=window_width,
+        height=window_height,
+        pos=(window_padding, window_height + 1 * window_height + 3 * window_padding),
+    )
+
     sensorHandler.create_add_sensor_window(
         width=window_width,
         height=window_height,
         pos=(
             window_padding,
-            window_height + window_height + 3 * window_padding,
+            window_height + 2 * window_height + 4 * window_padding,
         ),
     )
     sensorHandler.create_sensor_list_window(
@@ -134,7 +146,7 @@ with dpg.handler_registry():
         height=window_height,
         pos=(
             window_padding,
-            window_height + 2 * window_height + 4 * window_padding,
+            window_height + 3 * window_height + 5 * window_padding,
         ),
     )
 
@@ -143,7 +155,7 @@ with dpg.handler_registry():
         height=window_height,
         pos=(
             window_padding,
-            window_height + 3 * window_height + 5 * window_padding,
+            window_height + 4 * window_height + 6 * window_padding,
         ),
     )
     waypointHandler.create_waypoint_list_window(
@@ -151,7 +163,7 @@ with dpg.handler_registry():
         height=window_height,
         pos=(
             window_padding,
-            window_height + 4 * window_height + 6 * window_padding,
+            window_height + 5 * window_height + 7 * window_padding,
         ),
     )
 
@@ -169,14 +181,14 @@ with dpg.handler_registry():
         ) as drawlist:
             graphics = Graphics(drawlist)
             graphics.draw_simulation(depo, sensorHandler.sensor_list, waypoint_list)
-            graphics.set_handlers(depo, sensorHandler, waypointHandler)
+            graphics.set_handlers(depo, sensorHandler, waypointHandler, droneHandler)
 
     mapManager.create_window(
         width=window_width,
         height=window_height,
         pos=(
             window_padding,
-            window_height + 5 * window_height + 7 * window_padding,
+            window_height + 6 * window_height + 8 * window_padding,
         ),
     )
 
@@ -187,21 +199,11 @@ with dpg.handler_registry():
         height=window_height,
         pos=(
             window_padding,
-            window_height + 6 * window_height + 8 * window_padding,
+            window_height + 7 * window_height + 9 * window_padding,
         ),
     )
 
-    droneHandler = DroneHandler(drone_list=drone_list)
-    droneHandler.create_add_drone_window(
-        width=window_width,
-        height=window_height,
-        pos=(window_padding, window_height + 7 * window_height + 9 * window_padding),
-    )
-    droneHandler.create_drone_list_window(
-        width=window_width,
-        height=window_height,
-        pos=(window_padding, window_height + 8 * window_height + 10 * window_padding),
-    )
+    
 
     dpg.add_mouse_release_handler(callback=graphics.mouse_release_handler)
     dpg.add_mouse_drag_handler(callback=graphics.mouse_drag_handler)

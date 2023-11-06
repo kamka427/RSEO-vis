@@ -20,7 +20,6 @@ def MRS(
             break
         waypoints.remove(p)
 
-    print(f"Total cost: {M.total_cost}, Energy: {drone.energy}")
 
     # add depo to the mission
     M.add_depo(depo)
@@ -67,7 +66,7 @@ def is_augmentable(M: Mission, p: Waypoint, drone: Drone) -> bool:
     if p is None:
         return False
 
-    if p.flying_cost + M.flying_cost > drone.energy:
+    if p.flying_cost + p.hovering_cost + M.total_cost > drone.energy:
         return False
 
     if p.data_size + M.data_size > drone.storage:

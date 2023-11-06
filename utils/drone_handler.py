@@ -45,3 +45,6 @@ class DroneHandler:
         with dpg.window(label="Drone List", width=width, height=height, pos=pos):
             self.drone_combo = dpg.add_combo(label="Drone", items=self.drone_list)
             dpg.add_button(label="Delete Drone", callback=self.delete_drone)
+
+    def refresh_drone_combo(self):
+        dpg.configure_item(item=self.drone_combo, items=self.drone_list)

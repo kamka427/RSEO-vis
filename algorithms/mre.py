@@ -18,13 +18,11 @@ def MRE(
         if is_augmentable(M, p, drone):
             M.add_waypoint(p)
 
-        print(f"""p = {p}""")
-
         if p is None:
             break
         waypoints.remove(p)
 
-    print(f"Total cost: {M.total_cost}, Energy: {drone.energy}")
+    
 
     M.add_depo(depo)
 
@@ -48,16 +46,20 @@ def best_waypoint_ratio_reward_to_energy(
         total_reward = p.max_reward
         total_energy = p.flying_cost + p.hovering_cost
 
+        print(f"Total reward: {total_reward}, Total energy: {total_energy}")
+
+
         if total_energy == 0:
             continue
 
         ratio = total_reward / total_energy
 
+
         if ratio > best_ratio:
             best_ratio = ratio
             best_waypoint = p
 
-        print(f"Best ratio: {best_ratio}, Best waypoint: {best_waypoint}")
+       
 
     return best_waypoint
 
@@ -69,7 +71,7 @@ def is_augmentable(M: Mission, p: Waypoint, drone: Drone) -> bool:
     if p is None:
         return False
 
-    if p.flying_cost + M.flying_cost > drone.energy:
+    if p.flying_cost + p.hovering_cost + M.total_cost > drone.energy:
         return False
 
     if p.data_size + M.data_size > drone.storage:

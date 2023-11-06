@@ -5,6 +5,7 @@ from objects.sensor import Sensor
 from objects.waypoint import Waypoint
 import threading
 
+
 class Graphics:
     def __init__(self, drawlist):
         self.drawlist = drawlist
@@ -129,25 +130,50 @@ class Graphics:
                 self.create_depo(depo)
             self.update_depo(depo)
 
+    def draw_sensor_info(self, sensor):
+        return dpg.draw_text(
+            pos=(sensor.x + 1550 / 2, sensor.y + 1050 / 2),
+            text=f"{sensor.name} - {sensor.reward}",
+            color=(255, 255, 255, 255),
+            parent=self.drawlist,
+            size=20,
+        )
+
+    def update_sensor_info(self, sensor, sensor_id):
+        dpg.configure_item(
+            sensor_id,
+            pos=(sensor.x + 1550 / 2 + 20, sensor.y + 1050 / 2 - 10),
+            text=f"{sensor.name} - {sensor.reward}",
+        )
+
     def draw_sensors(self, sensor_list):
         # Remove all existing graphics if sensor_list is empty
-        if len(sensor_list) == 0:
-            self.remove_graphics(self.sensor_graphics)
-            self.sensor_graphics = []
-            return
+        if hasattr(self, "sensor_graphics"):
+            if len(sensor_list) == 0 or len(sensor_list) < len(self.sensor_graphics):
+                self.remove_graphics(self.sensor_graphics)
+                self.remove_graphics(self.sensor_info)
+                self.sensor_graphics = []
+                self.sensor_info = []
+                return
 
         # Initialize graphics list if it doesn't exist
         if not hasattr(self, "sensor_graphics"):
             self.sensor_graphics = []
+            self.sensor_info = []
 
         # Draw new sensors
         for sensor in sensor_list[len(self.sensor_graphics) :]:
             graphic_id = self.draw_sensor(sensor)
+            sensor_info_id = self.draw_sensor_info(sensor)
             self.sensor_graphics.append(graphic_id)
+            self.sensor_info.append(sensor_info_id)
 
         # Update existing sensors
-        for sensor, graphic_id in zip(sensor_list, self.sensor_graphics):
+        for sensor, graphic_id, sensor_info_id in zip(
+            sensor_list, self.sensor_graphics, self.sensor_info
+        ):
             self.update_sensor(sensor, graphic_id)
+            self.update_sensor_info(sensor, sensor_info_id)
 
     def draw_sensor(self, sensor):
         if self.isGraphics:
@@ -193,33 +219,61 @@ class Graphics:
                 center=(sensor.x + 1550 / 2, sensor.y + 1050 / 2),
             )
 
+    def draw_waypoint_info(self, waypoint):
+        return dpg.draw_text(
+            pos=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
+            text=f"{waypoint.name} - {waypoint.max_reward}",
+            color=(255, 255, 255, 255),
+            parent=self.drawlist,
+            size=20,
+        )
+
+    def update_waypoint_info(self, waypoint, waypoint_id):
+        dpg.configure_item(
+            waypoint_id,
+            pos=(waypoint.x + 1550 / 2 + 20, waypoint.y + 1050 / 2 - 10),
+            text=f"{waypoint.name} - {waypoint.max_reward}",
+        )
+
     def draw_waypoints(self, waypoint_list):
         # Remove all existing graphics if waypoint_list is empty
-        if len(waypoint_list) == 0:
-            self.remove_graphics(self.waypoint_graphics)
-            self.remove_graphics(self.waypoint_graphics_circle)
-            self.waypoint_graphics = []
-            self.waypoint_graphics_circle = []
-            return
+        if hasattr(self, "waypoint_graphics"):
+            if len(waypoint_list) == 0 or len(waypoint_list) < len(
+                self.waypoint_graphics
+            ):
+                self.remove_graphics(self.waypoint_graphics)
+                self.remove_graphics(self.waypoint_graphics_circle)
+                self.remove_graphics(self.waypoint_info)
+                self.waypoint_graphics = []
+                self.waypoint_graphics_circle = []
+                self.waypoint_info = []
+                return
 
         # Initialize graphics lists if they don't exist
         if not hasattr(self, "waypoint_graphics"):
             self.waypoint_graphics = []
             self.waypoint_graphics_circle = []
+            self.waypoint_info = []
 
         # Draw new waypoints
         for waypoint in waypoint_list[len(self.waypoint_graphics) :]:
             graphic_id = self.draw_waypoint(waypoint)
             dashed_circle_id = self.draw_dashed_circle(waypoint)
+            waypoint_info_id = self.draw_waypoint_info(waypoint)
             self.waypoint_graphics.append(graphic_id)
             self.waypoint_graphics_circle.append(dashed_circle_id)
+            self.waypoint_info.append(waypoint_info_id)
 
         # Update existing waypoints
-        for waypoint, graphic_id, dashed_circle_id in zip(
-            waypoint_list, self.waypoint_graphics, self.waypoint_graphics_circle
+        for waypoint, graphic_id, dashed_circle_id, waypoint_info_id in zip(
+            waypoint_list,
+            self.waypoint_graphics,
+            self.waypoint_graphics_circle,
+            self.waypoint_info,
         ):
             self.update_waypoint(waypoint, graphic_id)
             self.update_dashed_circle(waypoint, dashed_circle_id)
+            self.update_waypoint_info(waypoint, waypoint_info_id)
 
     def remove_graphics(self, graphics_list):
         for graphic_id in graphics_list:
@@ -335,7 +389,6 @@ class Graphics:
             p2=(drone.x + 1550 / 2, drone.y + 1050 / 2),
         )
 
-
     def animate_drone_path(self, drone, waypoints):
         drone.x = self.depo.x
         drone.y = self.depo.y
@@ -354,30 +407,63 @@ class Graphics:
                 self.update_drone_position(drone, dx, dy)
                 self.update_drone_and_arrow(drone, drone_id, arrow_id)
 
-                time.sleep(0.01)  # Be cautious with sleep in threads, it can block the program.
+                time.sleep(
+                    0.01
+                )  # Be cautious with sleep in threads, it can block the program.
 
             dpg.delete_item(drone_id)
 
     def animate_drone_paths(self, drone_paths):
         threads = []
         for drone, waypoints in drone_paths:
-            t = threading.Thread(target=self.animate_drone_path, args=(drone, waypoints))
+            t = threading.Thread(
+                target=self.animate_drone_path, args=(drone, waypoints)
+            )
             threads.append(t)
             t.start()
 
         for thread in threads:
             thread.join()  # Wait for all threads to complete before finishing the function.
 
+        self.droneHandler.refresh_drone_combo()
+        self.clear_mission_infos(len(drone_paths))
+
+       
+
+    def draw_mission_info(self, drone, mission, gap):
+        dpg.delete_item("drone_status_text" + str(gap))
+
+        text_id = "drone_status_text" + str(gap)
+
+        if dpg.does_item_exist(text_id):
+            dpg.configure_item(
+                text_id,
+                text=f"E={mission.total_cost}/{drone.energy}\nS={mission.data_size}/{drone.storage}",
+            )
+        else:
+            text_id = dpg.draw_text(
+                pos=(50, 50 + gap * 100),
+                text=f"E={mission.total_cost}/{drone.energy}\nS={mission.data_size}/{drone.storage}",
+                color=(255, 255, 255, 255),
+                parent=self.drawlist,
+                size=30,
+                id=text_id,
+            )
+
+    def clear_mission_infos(self, drone_count):
+        for i in range(drone_count):
+            dpg.delete_item("drone_status_text" + str(i))
 
     def draw_simulation(self, depo, sensor_list, waypoint_list):
         self.draw_depo(depo)
         self.draw_sensors(sensor_list)
         self.draw_waypoints(waypoint_list)
 
-    def set_handlers(self, depo, sensorHandler, waypointHandler):
+    def set_handlers(self, depo, sensorHandler, waypointHandler, droneHandler):
         self.sensorHandler = sensorHandler
         self.waypointHandler = waypointHandler
         self.depo = depo
+        self.droneHandler = droneHandler
 
     def mouse_drag_handler(self, sender):
         HIT_THRESHOLD = 20

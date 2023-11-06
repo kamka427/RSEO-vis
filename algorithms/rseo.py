@@ -18,9 +18,14 @@ def RSEO(
     drone: Drone, depo: Depo, sensors: list[Sensor], waypoints: list[Waypoint]
 ) -> Mission:
     V_prime = knapSack(sensors, drone.storage)[1]
+
+    max_from_sensors = sum(sensor.data_size for sensor in V_prime)
     P_prime = GreedySetCover(V_prime, waypoints)
     P_prime.insert(0, Waypoint("depo", depo.x, depo.y, [], 0))
     M = travellingSalesmanProblem(P_prime)
+
+    if not M.data_size < drone.storage:
+        M.data_size = max_from_sensors
 
     removable_waypoints = [
         waypoint for waypoint in M.flying_path if waypoint.name != "depo"

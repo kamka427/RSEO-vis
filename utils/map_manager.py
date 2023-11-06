@@ -10,6 +10,7 @@ class MapManager:
     def __init__(self, sensorHandler: SensorHandler, waypointHandler: WaypointHandler):
         self.sensorHandler = sensorHandler
         self.waypointHandler = waypointHandler
+        self.selected_file = None
 
     def save_map_to_file(self, filename):
         sensor_list_dict = [
@@ -21,6 +22,12 @@ class MapManager:
 
         with open(filename, "w") as f:
             json.dump({"sensors": sensor_list_dict, "waypoints": waypoint_list_dict}, f)
+
+        # Update the list of files in the load window
+        dpg.configure_item(
+            item=self.selected_file,
+            items=[file for file in os.listdir() if file.endswith(".json")],
+        )
 
     def load_map_from_file(self, filename):
         with open(filename, "r") as f:
@@ -51,6 +58,7 @@ class MapManager:
                 print(sensor)
 
         self.sensorHandler.redraw_simulation()
+        self.waypointHandler.redraw_simulation()
 
         return self.sensorHandler.sensor_list, self.waypointHandler.waypoint_list
 
@@ -63,12 +71,12 @@ class MapManager:
                     filename=dpg.get_value(file_name)
                 ),
             )
-            selected_file = dpg.add_listbox(
+            self.selected_file = dpg.add_listbox(
                 label="Select File",
                 items=[file for file in os.listdir() if file.endswith(".json")],
                 num_items=3,
-                callback=lambda: dpg.set_value(file_name, dpg.get_value(selected_file)),
+                callback=lambda: dpg.set_value(file_name, dpg.get_value(self.selected_file)),
             )
             dpg.add_button(
-                label="Load", callback=lambda: self.load_map_from_file("map.json")
+                label="Load", callback=lambda: self.load_map_from_file(dpg.get_value(self.selected_file) )
             )
