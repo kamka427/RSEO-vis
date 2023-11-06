@@ -36,7 +36,7 @@ waypoint_list = [w1, w2]
 drone1 = Drone(100, 100)
 drone2 = Drone(200, 200)
 
-drone_list = [drone1]
+drone_list = [drone1, drone2]
 
 depo = Depo(0, 0)
 
@@ -79,24 +79,17 @@ def start_simulation(sender, data):
         if M is not None:
             print(M)
 
-            print("len waypoints", len(M.flying_path))
-            print("--------------------")
-            for wp in M.flying_path:
-                print(wp)
 
-            print("--------------------")
-
-                
-
-            drone_paths.append((drone, M.flying_path))  
-
-            
-            
+            if len(M.flying_path) > 2:
+                drone_paths.append((drone, M.flying_path))  
+            else:
+                print("No path found")  
+                break
 
             # Remove visited waypoints from the list for the next drone
-            # if i == 0:
-            #     waypoints = [wp for wp in waypoints if wp not in M.flying_path]
-            #     print("len waypoints", len(waypoints))
+            waypoints = [wp for wp in waypoints if wp not in M.flying_path]
+            print("len waypoints", len(waypoints))
+
 
         else:
             print("No algorithm selected")

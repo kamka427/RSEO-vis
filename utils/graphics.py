@@ -3,7 +3,7 @@ import dearpygui.dearpygui as dpg
 import time
 from objects.sensor import Sensor
 from objects.waypoint import Waypoint
-
+import threading
 
 class Graphics:
     def __init__(self, drawlist):
@@ -335,28 +335,39 @@ class Graphics:
             p2=(drone.x + 1550 / 2, drone.y + 1050 / 2),
         )
 
+
+    def animate_drone_path(self, drone, waypoints):
+        drone.x = self.depo.x
+        drone.y = self.depo.y
+        for waypoint in waypoints:
+            steps = self.calculate_steps(drone, waypoint)
+
+            if steps == 0:
+                continue
+
+            dx = (waypoint.x - drone.x) / steps
+            dy = (waypoint.y - drone.y) / steps
+
+            drone_id, arrow_id = self.draw_drone_and_arrow(drone, waypoint)
+
+            for _ in range(steps):
+                self.update_drone_position(drone, dx, dy)
+                self.update_drone_and_arrow(drone, drone_id, arrow_id)
+
+                time.sleep(0.01)  # Be cautious with sleep in threads, it can block the program.
+
+            dpg.delete_item(drone_id)
+
     def animate_drone_paths(self, drone_paths):
+        threads = []
         for drone, waypoints in drone_paths:
-            drone.x = self.depo.x
-            drone.y = self.depo.y
-            for waypoint in waypoints:
-                steps = self.calculate_steps(drone, waypoint)
+            t = threading.Thread(target=self.animate_drone_path, args=(drone, waypoints))
+            threads.append(t)
+            t.start()
 
-                if steps == 0:
-                    continue
+        for thread in threads:
+            thread.join()  # Wait for all threads to complete before finishing the function.
 
-                dx = (waypoint.x - drone.x) / steps
-                dy = (waypoint.y - drone.y) / steps
-
-                drone_id, arrow_id = self.draw_drone_and_arrow(drone, waypoint)
-
-                for _ in range(steps):
-                    self.update_drone_position(drone, dx, dy)
-                    self.update_drone_and_arrow(drone, drone_id, arrow_id)
-
-                    time.sleep(0.01)
-
-                dpg.delete_item(drone_id)
 
     def draw_simulation(self, depo, sensor_list, waypoint_list):
         self.draw_depo(depo)
