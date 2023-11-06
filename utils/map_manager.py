@@ -75,8 +75,13 @@ class MapManager:
                 label="Select File",
                 items=[file for file in os.listdir() if file.endswith(".json")],
                 num_items=3,
-                callback=lambda: dpg.set_value(file_name, dpg.get_value(self.selected_file)),
+                callback=lambda: dpg.set_value(
+                    file_name, dpg.get_value(self.selected_file)
+                ),
             )
             dpg.add_button(
-                label="Load", callback=lambda: self.load_map_from_file(dpg.get_value(self.selected_file) )
+                label="Load",
+                callback=lambda: self.load_map_from_file(
+                    dpg.get_value(self.selected_file)
+                ),
             )

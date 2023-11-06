@@ -203,8 +203,6 @@ with dpg.handler_registry():
         ),
     )
 
-    
-
     dpg.add_mouse_release_handler(callback=graphics.mouse_release_handler)
     dpg.add_mouse_drag_handler(callback=graphics.mouse_drag_handler)
 

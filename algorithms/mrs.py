@@ -20,7 +20,6 @@ def MRS(
             break
         waypoints.remove(p)
 
-
     # add depo to the mission
     M.add_depo(depo)
 

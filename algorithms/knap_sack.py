@@ -9,8 +9,6 @@ def knapSack(V: set[Sensor], S: int) -> (int, set[Sensor]):
     # Base Case
     if len(V) == 0 or S == 0:
         return 0, []
-    
-    
 
     # If weight of the nth item is
     # more than Knapsack of capacity W,

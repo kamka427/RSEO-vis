@@ -428,8 +428,6 @@ class Graphics:
         self.droneHandler.refresh_drone_combo()
         self.clear_mission_infos(len(drone_paths))
 
-       
-
     def draw_mission_info(self, drone, mission, gap):
         dpg.delete_item("drone_status_text" + str(gap))
 

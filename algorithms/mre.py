@@ -22,8 +22,6 @@ def MRE(
             break
         waypoints.remove(p)
 
-    
-
     M.add_depo(depo)
 
     return M
@@ -48,18 +46,14 @@ def best_waypoint_ratio_reward_to_energy(
 
         print(f"Total reward: {total_reward}, Total energy: {total_energy}")
 
-
         if total_energy == 0:
             continue
 
         ratio = total_reward / total_energy
 
-
         if ratio > best_ratio:
             best_ratio = ratio
             best_waypoint = p
-
-       
 
     return best_waypoint
 
