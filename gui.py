@@ -11,6 +11,7 @@ from utils.waypoint_handler import WaypointHandler
 from algorithms.mre import MRE
 from algorithms.mrs import MRS
 from objects.depo import Depo
+from utils.drone_handler import DroneHandler
 
 dpg.create_context()
 dpg.create_viewport(width=1920, height=1080, title="SDMP Simulation")
@@ -32,6 +33,11 @@ w1 = Waypoint("w1", 100, 100, sensor_list, 10)
 w2 = Waypoint("w2", 200, 200, sensor_list, 15)
 waypoint_list = [w1, w2]
 
+drone1 = Drone(100, 100)
+drone2 = Drone(200, 200)
+
+drone_list = [drone1]
+
 depo = Depo(0, 0)
 
 
@@ -50,33 +56,53 @@ mapManager = MapManager(sensorHandler, waypointHandler)
 
 
 def start_simulation(sender, data):
-    drone = Drone(dpg.get_value(item=energy_c), dpg.get_value(item=storage_c))
-
-    print("The path for the drone:")
+    print("The path for the drones:")
 
     sensors = sensorHandler.sensor_list.copy()
     waypoints = waypointHandler.waypoint_list.copy()
 
     selected_algorithm = dpg.get_value(item=algorithm_c)
+    # Assume drones is a list of Drone objects
+    drones = droneHandler.drone_list.copy()
+    print("len drones", len(droneHandler.drone_list))
+    drone_paths = []
 
-    M = None
-    if selected_algorithm == "RSEO":
-        M = RSEO(drone, depo, sensors, waypoints)
+    for i, drone in enumerate(drones):
+        M = None
+        if selected_algorithm == "RSEO":
+            M = RSEO(drone, depo, sensors, waypoints)
+        elif selected_algorithm == "MRE":
+            M = MRE(drone, depo, sensors, waypoints)
+        elif selected_algorithm == "MRS":
+            M = MRS(drone, depo, sensors, waypoints)
 
-    elif selected_algorithm == "MRE":
-        M = MRE(drone, depo, sensors, waypoints)
+        if M is not None:
+            print(M)
 
-    elif selected_algorithm == "MRS":
-        M = MRS(drone, depo, sensors, waypoints)
+            print("len waypoints", len(M.flying_path))
+            print("--------------------")
+            for wp in M.flying_path:
+                print(wp)
 
-    if M is not None:
-        print(M)
-        graphics.draw_simulation(
-            depo, sensorHandler.sensor_list, waypointHandler.waypoint_list
-        )
-        graphics.animate_drone_path(drone, M.flying_path)
-    else:
-        print("No algorithm selected")
+            print("--------------------")
+
+                
+
+            drone_paths.append((drone, M.flying_path))  
+
+            
+            
+
+            # Remove visited waypoints from the list for the next drone
+            # if i == 0:
+            #     waypoints = [wp for wp in waypoints if wp not in M.flying_path]
+            #     print("len waypoints", len(waypoints))
+
+        else:
+            print("No algorithm selected")
+
+    # graphics.draw_simulation(depo, sensorHandler.sensor_list, waypoint_list)
+    graphics.animate_drone_paths(drone_paths)
 
 
 window_width = 400
@@ -101,14 +127,6 @@ with dpg.handler_registry():
         dpg.add_button(label="Run Simulation", callback=start_simulation)
 
     # Sidebar windows
-    with dpg.window(
-        label="Drone parameters",
-        width=window_width,
-        height=window_height,
-        pos=(window_padding, window_height + 2 * window_padding),
-    ):
-        energy_c = dpg.add_input_int(label="Energy", default_value=100)
-        storage_c = dpg.add_input_int(label="Storage", default_value=50)
 
     sensorHandler.create_add_sensor_window(
         width=window_width,
@@ -178,6 +196,18 @@ with dpg.handler_registry():
             window_padding,
             window_height + 6 * window_height + 8 * window_padding,
         ),
+    )
+
+    droneHandler = DroneHandler(drone_list=drone_list)
+    droneHandler.create_add_drone_window(
+        width=window_width,
+        height=window_height,
+        pos=(window_padding, window_height + 7 * window_height + 9 * window_padding),
+    )
+    droneHandler.create_drone_list_window(
+        width=window_width,
+        height=window_height,
+        pos=(window_padding, window_height + 8 * window_height + 10 * window_padding),
     )
 
     dpg.add_mouse_release_handler(callback=graphics.mouse_release_handler)

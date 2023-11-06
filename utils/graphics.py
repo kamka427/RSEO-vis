@@ -283,79 +283,80 @@ class Graphics:
             center=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
         )
 
-    def animate_drone_path(self, drone, waypoints):
-        drone.x = self.depo.x
-        drone.y = self.depo.y
-        for waypoint in waypoints:
-            steps: int = int(
-                max((abs(drone.x - waypoint.x)), abs(drone.y - waypoint.y))
-            )
+    def calculate_steps(self, drone, waypoint):
+        return int(max(abs(drone.x - waypoint.x), abs(drone.y - waypoint.y)))
 
-            if steps == 0:
-                continue
+    def update_drone_position(self, drone, dx, dy):
+        drone.x += dx
+        drone.y += dy
 
-            # Calculate the amount to move in each step using integer division
-            dx = (waypoint.x - drone.x) / steps
-            dy = (waypoint.y - drone.y) / steps
-
-            if not self.isGraphics:
-                drone_id = dpg.draw_circle(
-                    parent=self.drawlist,
-                    center=(drone.x + 1550 / 2, drone.y + 1050 / 2),
-                    radius=10,
-                    color=(0, 0, 255, 255),
-                    fill=(0, 0, 255, 255),
-                )
-
-            else:
-                drone_id = dpg.draw_image(
-                    pmin=(drone.x + 1550 / 2 - 50 / 2, drone.y + 1050 / 2 - 50 / 2),
-                    pmax=(drone.x + 1550 / 2 + 50 / 2, drone.y + 1050 / 2 + 50 / 2),
-                    parent=self.drawlist,
-                    texture_tag="drone",
-                )
-
-            arrow_id = dpg.draw_arrow(
+    def draw_drone_and_arrow(self, drone, waypoint):
+        if not self.isGraphics:
+            drone_id = dpg.draw_circle(
                 parent=self.drawlist,
-                p2=(drone.x + 1550 / 2, drone.y + 1050 / 2),
-                p1=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
-                thickness=2,
-                color=(255, 255, 255, 255),
+                center=(drone.x + 1550 / 2, drone.y + 1050 / 2),
+                radius=10,
+                color=(0, 0, 255, 255),
+                fill=(0, 0, 255, 255),
+            )
+        else:
+            drone_id = dpg.draw_image(
+                pmin=(drone.x + 1550 / 2 - 50 / 2, drone.y + 1050 / 2 - 50 / 2),
+                pmax=(drone.x + 1550 / 2 + 50 / 2, drone.y + 1050 / 2 + 50 / 2),
+                parent=self.drawlist,
+                texture_tag="drone",
             )
 
-            for _ in range(steps):
-                # Update the drone's position and round the new position
-                drone.x = drone.x + dx
-                drone.y = drone.y + dy
+        arrow_id = dpg.draw_arrow(
+            parent=self.drawlist,
+            p2=(drone.x + 1550 / 2, drone.y + 1050 / 2),
+            p1=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
+            thickness=2,
+            color=(255, 255, 255, 255),
+        )
 
-                if not self.isGraphics:
-                    dpg.configure_item(
-                        drone_id,
-                        center=(drone.x + 1550 / 2, drone.y + 1050 / 2),
-                    )
+        return drone_id, arrow_id
 
-                else:
-                    dpg.configure_item(
-                        drone_id,
-                        pmin=(drone.x + 1550 / 2 - 50 / 2, drone.y + 1050 / 2 - 50 / 2),
-                        pmax=(drone.x + 1550 / 2 + 50 / 2, drone.y + 1050 / 2 + 50 / 2),
-                    )
+    def update_drone_and_arrow(self, drone, drone_id, arrow_id):
+        if not self.isGraphics:
+            dpg.configure_item(
+                drone_id,
+                center=(drone.x + 1550 / 2, drone.y + 1050 / 2),
+            )
+        else:
+            dpg.configure_item(
+                drone_id,
+                pmin=(drone.x + 1550 / 2 - 50 / 2, drone.y + 1050 / 2 - 50 / 2),
+                pmax=(drone.x + 1550 / 2 + 50 / 2, drone.y + 1050 / 2 + 50 / 2),
+            )
 
-                dpg.configure_item(
-                    arrow_id,
-                    p2=(drone.x + 1550 / 2, drone.y + 1050 / 2),
-                )
+        dpg.configure_item(
+            arrow_id,
+            p2=(drone.x + 1550 / 2, drone.y + 1050 / 2),
+        )
 
-                # Pause for a short time to create the animation effect
-                time.sleep(0.01)
+    def animate_drone_paths(self, drone_paths):
+        for drone, waypoints in drone_paths:
+            drone.x = self.depo.x
+            drone.y = self.depo.y
+            for waypoint in waypoints:
+                steps = self.calculate_steps(drone, waypoint)
 
-            # Wait the hovering time
-            # time.sleep(waypoint.hovering_cost)
+                if steps == 0:
+                    continue
 
-            # Remove the drone and arrow
-            dpg.delete_item(drone_id)
+                dx = (waypoint.x - drone.x) / steps
+                dy = (waypoint.y - drone.y) / steps
 
-            # change back waypoint color to yellow
+                drone_id, arrow_id = self.draw_drone_and_arrow(drone, waypoint)
+
+                for _ in range(steps):
+                    self.update_drone_position(drone, dx, dy)
+                    self.update_drone_and_arrow(drone, drone_id, arrow_id)
+
+                    time.sleep(0.01)
+
+                dpg.delete_item(drone_id)
 
     def draw_simulation(self, depo, sensor_list, waypoint_list):
         self.draw_depo(depo)
