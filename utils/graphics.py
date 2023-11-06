@@ -154,7 +154,7 @@ class Graphics:
                 self.remove_graphics(self.sensor_info)
                 self.sensor_graphics = []
                 self.sensor_info = []
-                return
+                
 
         # Initialize graphics list if it doesn't exist
         if not hasattr(self, "sensor_graphics"):
@@ -247,7 +247,7 @@ class Graphics:
                 self.waypoint_graphics = []
                 self.waypoint_graphics_circle = []
                 self.waypoint_info = []
-                return
+                
 
         # Initialize graphics lists if they don't exist
         if not hasattr(self, "waypoint_graphics"):
