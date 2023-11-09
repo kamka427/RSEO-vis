@@ -1,0 +1,213 @@
+{
+    "sensors": [
+        {
+            "name": "p1",
+            "reward": 20,
+            "data_size": 10,
+            "x": -341,
+            "y": -46,
+            "hovering_cost": 5
+        },
+        {
+            "name": "p2",
+            "reward": 10,
+            "data_size": 20,
+            "x": 19,
+            "y": -191,
+            "hovering_cost": 10
+        },
+        {
+            "name": "p3",
+            "reward": 5,
+            "data_size": 30,
+            "x": 200,
+            "y": 200,
+            "hovering_cost": 7
+        },
+        {
+            "name": "p4",
+            "reward": 60,
+            "data_size": 10,
+            "x": 180,
+            "y": 180,
+            "hovering_cost": 4
+        },
+        {
+            "name": "pX",
+            "reward": 100,
+            "data_size": 10,
+            "x": 246,
+            "y": 27,
+            "hovering_cost": 5
+        },
+        {
+            "name": "pX",
+            "reward": 100,
+            "data_size": 10,
+            "x": 262,
+            "y": -155,
+            "hovering_cost": 5
+        },
+        {
+            "name": "pX",
+            "reward": 100,
+            "data_size": 10,
+            "x": 220,
+            "y": -250,
+            "hovering_cost": 5
+        },
+        {
+            "name": "pX",
+            "reward": 100,
+            "data_size": 10,
+            "x": 307,
+            "y": -218,
+            "hovering_cost": 5
+        },
+        {
+            "name": "pX",
+            "reward": 100,
+            "data_size": 10,
+            "x": 17,
+            "y": -129,
+            "hovering_cost": 5
+        },
+        {
+            "name": "pX",
+            "reward": 100,
+            "data_size": 10,
+            "x": 100,
+            "y": 100,
+            "hovering_cost": 5
+        }
+    ],
+    "waypoints": [
+        {
+            "name": "w1",
+            "x": -388,
+            "y": -56,
+            "reachable_sensors": [
+                {
+                    "name": "p1",
+                    "reward": 20,
+                    "data_size": 10,
+                    "x": -341,
+                    "y": -46,
+                    "hovering_cost": 5
+                }
+            ],
+            "flying_cost": 10,
+            "hovering_cost": 5,
+            "max_reward": 20,
+            "radius": 100
+        },
+        {
+            "name": "w2",
+            "x": 244,
+            "y": 250,
+            "reachable_sensors": [
+                {
+                    "name": "p3",
+                    "reward": 5,
+                    "data_size": 30,
+                    "x": 200,
+                    "y": 200,
+                    "hovering_cost": 7
+                },
+                {
+                    "name": "p4",
+                    "reward": 60,
+                    "data_size": 10,
+                    "x": 180,
+                    "y": 180,
+                    "hovering_cost": 4
+                }
+            ],
+            "flying_cost": 15,
+            "hovering_cost": 11,
+            "max_reward": 65,
+            "radius": 100
+        },
+        {
+            "name": "wX",
+            "x": 258,
+            "y": -228,
+            "reachable_sensors": [
+                {
+                    "name": "pX",
+                    "reward": 100,
+                    "data_size": 10,
+                    "x": 262,
+                    "y": -155,
+                    "hovering_cost": 5
+                },
+                {
+                    "name": "pX",
+                    "reward": 100,
+                    "data_size": 10,
+                    "x": 220,
+                    "y": -250,
+                    "hovering_cost": 5
+                },
+                {
+                    "name": "pX",
+                    "reward": 100,
+                    "data_size": 10,
+                    "x": 307,
+                    "y": -218,
+                    "hovering_cost": 5
+                }
+            ],
+            "flying_cost": 10,
+            "hovering_cost": 15,
+            "max_reward": 300,
+            "radius": 100
+        },
+        {
+            "name": "wX",
+            "x": -23,
+            "y": -190,
+            "reachable_sensors": [
+                {
+                    "name": "p2",
+                    "reward": 10,
+                    "data_size": 20,
+                    "x": 19,
+                    "y": -191,
+                    "hovering_cost": 10
+                },
+                {
+                    "name": "pX",
+                    "reward": 100,
+                    "data_size": 10,
+                    "x": 17,
+                    "y": -129,
+                    "hovering_cost": 5
+                }
+            ],
+            "flying_cost": 10,
+            "hovering_cost": 15,
+            "max_reward": 110,
+            "radius": 100
+        },
+        {
+            "name": "wX",
+            "x": 265,
+            "y": 50,
+            "reachable_sensors": [
+                {
+                    "name": "pX",
+                    "reward": 100,
+                    "data_size": 10,
+                    "x": 246,
+                    "y": 27,
+                    "hovering_cost": 5
+                }
+            ],
+            "flying_cost": 10,
+            "hovering_cost": 5,
+            "max_reward": 100,
+            "radius": 100
+        }
+    ]
+}

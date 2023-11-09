@@ -1,0 +1,60 @@
+{
+  "sensors": [
+    {
+      "name": "p2",
+      "reward": 200,
+      "data_size": 50,
+      "x": -45,
+      "y": -374,
+      "hovering_cost": 0
+    },
+    {
+      "name": "p1",
+      "reward": 100,
+      "data_size": 1,
+      "x": -55,
+      "y": -169,
+      "hovering_cost": 0
+    }
+  ],
+  "waypoints": [
+    {
+      "name": "w1",
+      "x": -2,
+      "y": -202,
+      "reachable_sensors": [
+        {
+          "name": "p1",
+          "reward": 100,
+          "data_size": 1,
+          "x": -55,
+          "y": -169,
+          "hovering_cost": 0
+        }
+      ],
+      "flying_cost": 10,
+      "hovering_cost": 0,
+      "max_reward": 100,
+      "radius": 100
+    },
+    {
+      "name": "w2",
+      "x": -1,
+      "y": -402,
+      "reachable_sensors": [
+        {
+          "name": "p2",
+          "reward": 200,
+          "data_size": 50,
+          "x": -45,
+          "y": -374,
+          "hovering_cost": 0
+        }
+      ],
+      "flying_cost": 15,
+      "hovering_cost": 0,
+      "max_reward": 200,
+      "radius": 100
+    }
+  ]
+}
