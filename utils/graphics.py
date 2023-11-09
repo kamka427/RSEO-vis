@@ -11,7 +11,7 @@ class Graphics:
         self.drawlist = drawlist
         self.dragging = False
         self.dragged_item = None
-        self.isGraphics = False
+        self.isGraphics = True
 
         self.load_texture("textures/sensor.png", "sensor")
         self.load_texture("textures/waypoint.png", "waypoint")
@@ -472,7 +472,6 @@ class Graphics:
         # convert to int
         mouse_pos = (int(mouse_pos[0]), int(mouse_pos[1]))
 
-        print(mouse_pos)
 
         if not self.dragging:
             # depo

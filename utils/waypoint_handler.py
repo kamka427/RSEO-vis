@@ -61,7 +61,7 @@ class WaypointHandler:
             self.y_cord_w_c = dpg.add_input_int(label="Y", default_value=100)
             self.radius_c = dpg.add_input_int(label="Radius", default_value=100)
             self.flying_cost_c = dpg.add_input_int(
-                label="Flying Cost", default_value=10
+                label="Flying Cost", default_value=50
             )
             self.hovering_cost_c = dpg.add_input_int(
                 label="Hovering Cost", default_value=5

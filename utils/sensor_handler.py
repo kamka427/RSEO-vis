@@ -48,7 +48,7 @@ class SensorHandler:
     def create_add_sensor_window(self, width, height, pos):
         with dpg.window(label="Add Sensor", width=width, height=height, pos=pos):
             self.name_c = dpg.add_input_text(label="Name", default_value="pX")
-            self.reward_c = dpg.add_input_int(label="Reward", default_value=100)
+            self.reward_c = dpg.add_input_int(label="Reward", default_value=50)
             self.data_size_c = dpg.add_input_int(label="Data Size", default_value=10)
             self.x_cord_s_c = dpg.add_input_int(label="X", default_value=100)
             self.y_cord_s_c = dpg.add_input_int(label="Y", default_value=100)

@@ -38,7 +38,7 @@ class DroneHandler:
     def create_add_drone_window(self, width, height, pos):
         with dpg.window(label="Add Drone", width=width, height=height, pos=pos):
             self.energy_c = dpg.add_input_int(label="Energy", default_value=100)
-            self.storage_c = dpg.add_input_int(label="Storage", default_value=10)
+            self.storage_c = dpg.add_input_int(label="Storage", default_value=100)
             dpg.add_button(label="Add Drone", callback=self.create_drone)
 
     def create_drone_list_window(self, width, height, pos):
