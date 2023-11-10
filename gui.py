@@ -95,7 +95,6 @@ def start_simulation(sender, data):
         else:
             print("No algorithm selected")
 
-    # graphics.draw_simulation(depo, sensorHandler.sensor_list, waypoint_list)
     graphics.animate_drone_paths(drone_paths)
 
 
@@ -108,7 +107,6 @@ canvas_height = 1000
 canvas_padding = 10
 
 with dpg.handler_registry():
-    # Topbar windows
     with dpg.window(
         label="Select Algorithm",
         width=window_width,
@@ -119,8 +117,6 @@ with dpg.handler_registry():
             items=["RSEO", "MRE", "MRS"], horizontal=True, default_value="RSEO"
         )
         dpg.add_button(label="Run Simulation", callback=start_simulation)
-
-    # Sidebar windows
 
     droneHandler.create_add_drone_window(
         width=window_width,

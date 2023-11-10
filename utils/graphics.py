@@ -29,10 +29,15 @@ class Graphics:
         self.remove_graphics(self.sensor_graphics)
         self.remove_graphics(self.waypoint_graphics)
         self.remove_graphics(self.waypoint_graphics_circle)
+        self.remove_graphics(self.sensor_info)
+        self.remove_graphics(self.waypoint_info)
+
         self.depo_id = None
         self.sensor_graphics = []
         self.waypoint_graphics = []
         self.waypoint_graphics_circle = []
+        self.sensor_info = []
+        self.waypoint_info = []
 
         self.draw_map()
         self.draw_simulation(
@@ -154,7 +159,6 @@ class Graphics:
                 self.remove_graphics(self.sensor_info)
                 self.sensor_graphics = []
                 self.sensor_info = []
-                
 
         # Initialize graphics list if it doesn't exist
         if not hasattr(self, "sensor_graphics"):
@@ -247,7 +251,6 @@ class Graphics:
                 self.waypoint_graphics = []
                 self.waypoint_graphics_circle = []
                 self.waypoint_info = []
-                
 
         # Initialize graphics lists if they don't exist
         if not hasattr(self, "waypoint_graphics"):
@@ -471,7 +474,6 @@ class Graphics:
 
         # convert to int
         mouse_pos = (int(mouse_pos[0]), int(mouse_pos[1]))
-
 
         if not self.dragging:
             # depo

@@ -4,6 +4,8 @@ from objects.waypoint import Waypoint
 from objects.mission import Mission
 from objects.depo import Depo
 
+from algorithms.is_augmentable import is_augmentable
+
 
 def MRS(
     drone: Drone, depo: Depo, sensors: list[Sensor], waypoints: list[Waypoint]
@@ -56,19 +58,3 @@ def best_waypoint_ratio_reward_to_storage(
             best_waypoint = p
 
     return best_waypoint
-
-
-def is_augmentable(M: Mission, p: Waypoint, drone: Drone) -> bool:
-    if M is None:
-        return True
-
-    if p is None:
-        return False
-
-    if p.flying_cost + p.hovering_cost + M.total_cost > drone.energy:
-        return False
-
-    if p.data_size + M.data_size > drone.storage:
-        return False
-
-    return True

@@ -9,6 +9,7 @@ import unittest
 
 # Some tests need finetuning as RSEO might choose different paths for the same correct solution
 
+
 class TestRSEO(unittest.TestCase):
     def test_empty(self):
         drone = Drone(100, 100)

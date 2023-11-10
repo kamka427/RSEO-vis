@@ -61,7 +61,12 @@ class TestMRE(unittest.TestCase):
         waypoint1 = Waypoint("waypoint1", 10, 10, [sensor1, sensor2, sensor3], 10)
         waypoint2 = Waypoint("waypoint2", 100, 100, [sensor1, sensor2, sensor3], 10)
         waypoint3 = Waypoint("waypoint3", 200, 200, [sensor1, sensor2, sensor3], 10)
-        M = MRE(drone, Depo(), [sensor1, sensor2, sensor3], [waypoint1, waypoint2, waypoint3])
+        M = MRE(
+            drone,
+            Depo(),
+            [sensor1, sensor2, sensor3],
+            [waypoint1, waypoint2, waypoint3],
+        )
         mission = Mission(
             [
                 Waypoint("depo", 0, 0, [], 0),

@@ -1,10 +1,9 @@
 from objects.drone import Drone
 from objects.sensor import Sensor
 from objects.waypoint import Waypoint
+from objects.depo import Depo
 from algorithms.rseo import RSEO
-
 from algorithms.mre import MRE
-
 from algorithms.mrs import MRS
 
 if __name__ == "__main__":
@@ -26,13 +25,11 @@ if __name__ == "__main__":
     w2 = Waypoint("w2", 200, 200, sensor_list, 15)
     waypoint_list = [w1, w2]
 
-    print("The path for the drone:")
-    print(RSEO(drone, sensor_list, waypoint_list))
+    print("RSEO - The path for the drone:")
+    print(RSEO(drone, Depo(), sensor_list.copy(), waypoint_list.copy()))
 
-    # test MRE
-    print("The path for the drone:")
-    # print(MRE(drone, sensor_list, waypoint_list))
+    print("MRE - The path for the drone:")
+    print(MRE(drone, Depo(), sensor_list.copy(), waypoint_list.copy()))
 
-    # test MRS
-    print("The path for the drone:")
-    print(MRS(drone, sensor_list, waypoint_list))
+    print("MRS - The path for the drone:")
+    print(MRS(drone, Depo(), sensor_list.copy(), waypoint_list.copy()))

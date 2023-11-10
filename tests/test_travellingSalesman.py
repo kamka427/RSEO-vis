@@ -66,7 +66,9 @@ class TestTravellingSalesmanProblem(unittest.TestCase):
         waypoint2 = Waypoint("waypoint2", 10, 10, [], 10)
         waypoint3 = Waypoint("waypoint3", 10, 10, [], 10)
         waypoint4 = Waypoint("waypoint4", 10, 10, [], 10)
-        M = travellingSalesmanProblem([Waypoint("depo", 0, 0, [], 0), waypoint1, waypoint2, waypoint3, waypoint4])
+        M = travellingSalesmanProblem(
+            [Waypoint("depo", 0, 0, [], 0), waypoint1, waypoint2, waypoint3, waypoint4]
+        )
         mission = Mission(
             [
                 Waypoint("depo", 0, 0, [], 0),
