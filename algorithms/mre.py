@@ -44,7 +44,7 @@ def best_waypoint_ratio_reward_to_energy(
             sensor for sensor in reachable_sensors if sensor not in sensors
         ]
         total_reward = p.max_reward
-        total_energy = drone.energy_cost_to_waypoint(p) + p.hovering_cost
+        total_energy = drone.flying_cost_to_waypoint(p) + p.hovering_cost
 
         print(f"Total reward: {total_reward}, Total energy: {total_energy}")
 
