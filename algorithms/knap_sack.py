@@ -5,32 +5,35 @@ This function returns the maximum reward and its sensors to a given Storage cons
 """
 
 
-def knapSack(V: set[Sensor], S: int) -> (int, set[Sensor]):
-    # Base Case
-    if len(V) == 0 or S == 0:
-        return 0, []
+def knapSack(V: list[Sensor], S: int) -> (int, set[Sensor]):
+    # Handle edge cases
+    if not V or S <= 0:
+        return 0, list()
 
-    # If weight of the nth item is
-    # more than Knapsack of capacity W,
-    # then this item cannot be included
-    # in the optimal solution
-    if V[-1].data_size > S:
-        result, sensors = knapSack(V[:-1], S)
-        return result, sensors
+    n = len(V)
+    dp = [[0 for _ in range(S + 1)] for _ in range(n + 1)]
+    keep = [[False for _ in range(S + 1)] for _ in range(n + 1)]
 
-    # Calculate the value if the nth item is included
-    with_item, sensors_with_item = knapSack(V[:-1], S - V[-1].data_size)
-    with_item += V[-1].reward
+    # Build the dp and keep tables
+    for i in range(1, n + 1):
+        for s in range(1, S + 1):
+            if V[i - 1].data_size <= s:
+                not_taken = dp[i - 1][s]
+                taken = dp[i - 1][s - V[i - 1].data_size] + V[i - 1].reward
+                if taken > not_taken:
+                    dp[i][s] = taken
+                    keep[i][s] = True
+                else:
+                    dp[i][s] = not_taken
+            else:
+                dp[i][s] = dp[i - 1][s]
 
-    # Calculate the value if the nth item is not included
-    without_item, sensors_without_item = knapSack(V[:-1], S)
+    # Reconstruct the set of chosen sensors
+    sensors = set()
+    s = S
+    for i in range(n, 0, -1):
+        if keep[i][s]:
+            sensors.add(V[i - 1])
+            s -= V[i - 1].data_size
 
-    # Compare the values and update the sensors accordingly
-    if with_item > without_item:
-        result = with_item
-        sensors = sensors_with_item + [V[-1]]
-    else:
-        result = without_item
-        sensors = sensors_without_item
-
-    return result, sensors
+    return dp[n][S], list(sensors)

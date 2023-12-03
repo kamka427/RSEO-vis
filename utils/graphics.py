@@ -309,7 +309,7 @@ class Graphics:
     def draw_dashed_circle(self, waypoint):
         return dpg.draw_circle(
             center=(waypoint.x + 1550 / 2, waypoint.y + 1050 / 2),
-            radius=100,
+            radius=waypoint.radius,
             color=(0, 0, 255, 255),
             parent=self.drawlist,
         )

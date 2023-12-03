@@ -10,34 +10,38 @@ This function returns the less energy consuming path for the given waypoints fro
 """
 
 
-def travellingSalesmanProblem(
-    selected_waypoints: list[Waypoint],
-) -> Mission:
-    # Initialize the list of vertices
-    vertex = []
-    s = 0  # starts from the depo
-    for i in range(len(selected_waypoints)):
-        if i != s:
-            vertex.append(i)
 
-    min_path_weight = maxsize
-    min_path = None  # Initialize the min_path as None
+def travellingSalesmanProblem(drone, selected_waypoints):
+    print(drone)
+    n = len(selected_waypoints)
+    
+    if n == 0:
+        return Mission([], 0)
 
-    next_permutation = permutations(vertex)
-    for i in next_permutation:
-        current_path_weight = 0
-        path = [selected_waypoints[s]]  # Initialize the path with the source vertex
-        k = s
-        for j in i:
-            current_path_weight += selected_waypoints[k].flying_cost
-            path.append(selected_waypoints[j])
-            k = j
-        current_path_weight += selected_waypoints[k].flying_cost
+    visited = [False] * n
+    path = [selected_waypoints[0]]
+    visited[0] = True
+    total_cost = 0
 
-        if current_path_weight < min_path_weight:
-            min_path_weight = current_path_weight
-            min_path = path
+    for _ in range(1, n):
+        nearest = -1
+        nearest_distance = maxsize
+        for i in range(n):
+            if not visited[i]:
+                temp_distance = drone.flying_cost_to_waypoint(selected_waypoints[i])
+                print(temp_distance)
+                if temp_distance < nearest_distance:
+                    nearest_distance = temp_distance
+                    nearest = i
+        visited[nearest] = True
+        path.append(selected_waypoints[nearest])
+        total_cost += nearest_distance
+        drone.x = selected_waypoints[nearest].x
+        drone.y = selected_waypoints[nearest].y
 
-    min_path.append(selected_waypoints[s])
 
-    return Mission(min_path, min_path_weight)
+    # Add cost to return to the starting point
+    total_cost += drone.flying_cost_to_waypoint(selected_waypoints[0])
+    path.append(selected_waypoints[0])
+
+    return Mission(path, total_cost)
