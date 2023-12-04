@@ -1,5 +1,6 @@
 from objects.waypoint import Waypoint
 from objects.depo import Depo
+import math
 
 
 class Mission:
@@ -12,10 +13,10 @@ class Mission:
 
     def __str__(self):
         path = " -> ".join(
-            f"{waypoint.name}({waypoint.x}, {waypoint.y}) Reward: {waypoint.max_reward}"
+            f"{waypoint.name}({waypoint.x}, {waypoint.y}) Reward: {waypoint.max_reward} Data: {waypoint.data_size} Cost: {waypoint.flying_cost + waypoint.hovering_cost}"
             for waypoint in self.flying_path
         )
-        return f"Mission(flying_path=[{path}], flying_cost={self.flying_cost}, hovering_cost={self.hovering_cost}, total_cost={self.total_cost})"
+        return f"Mission(flying_path=[{path}], flying_cost={self.flying_cost}, hovering_cost={self.hovering_cost}, total_cost={self.total_cost}, data_size={self.data_size})"
 
     def __eq__(self, other):
         if not isinstance(other, Mission):
@@ -65,3 +66,13 @@ class Mission:
         )
         self.flying_path.insert(0, w_depo)
         self.flying_path.append(w_depo)
+        self.total_cost += w_depo.flying_cost
+
+    def distance_to_depo(self, waypoint: Waypoint):
+        return int(
+            math.sqrt(
+                (waypoint.x - self.flying_path[0].x) ** 2
+                + (waypoint.y - self.flying_path[0].y) ** 2
+            )
+            / 10
+        )

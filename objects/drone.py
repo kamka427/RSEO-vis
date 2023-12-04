@@ -16,3 +16,7 @@ class Drone:
         return int(
             math.sqrt((self.x - waypoint.x) ** 2 + (self.y - waypoint.y) ** 2) / 10
         )
+
+    def fly_to_waypoint(self, waypoint: Waypoint):
+        self.x = waypoint.x
+        self.y = waypoint.y

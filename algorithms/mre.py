@@ -12,41 +12,41 @@ def MRE(
 ) -> Mission:
     M = Mission([], 0)
 
-    for waypoint in waypoints:
-        print(f"waypoint: {waypoint}")
+    drone1 = Drone(drone.energy, drone.storage)
 
-    while len(waypoints) > 0:
-        p = best_waypoint_ratio_reward_to_energy(sensors, waypoints, drone)
-        if is_augmentable(M, p, drone):
+    while waypoints:
+        p = best_waypoint_ratio_reward_to_energy(waypoints, drone1)
+        if is_augmentable(M, p, drone1):
             M.add_waypoint(p)
+            drone1.fly_to_waypoint(p)
 
         if p is None:
             break
+
         waypoints.remove(p)
 
     M.add_depo(depo)
 
+      
+    M.total_cost += M.distance_to_depo(M.flying_path[-2])
+    M.flying_cost += M.distance_to_depo(M.flying_path[-2])
     return M
 
 
 def best_waypoint_ratio_reward_to_energy(
-    sensors: list[Sensor], waypoints: list[Waypoint], drone: Drone
+    waypoints: list[Waypoint], drone: Drone
 ) -> Waypoint:
     best_ratio = 0
     best_waypoint = None
 
     for p in waypoints:
-        if not is_augmentable(None, p, drone):
-            continue
+       
 
-        reachable_sensors = p.reachable_sensors
-        reachable_sensors = [
-            sensor for sensor in reachable_sensors if sensor not in sensors
-        ]
         total_reward = p.max_reward
+
+        print(p.name, drone.flying_cost_to_waypoint(p), p.hovering_cost)
         total_energy = drone.flying_cost_to_waypoint(p) + p.hovering_cost
 
-        print(f"Total reward: {total_reward}, Total energy: {total_energy}")
 
         if total_energy == 0:
             continue
@@ -57,4 +57,6 @@ def best_waypoint_ratio_reward_to_energy(
             best_ratio = ratio
             best_waypoint = p
 
+
+        p.flying_cost = drone.flying_cost_to_waypoint(p)
     return best_waypoint
