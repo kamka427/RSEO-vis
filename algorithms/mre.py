@@ -16,7 +16,7 @@ def MRE(
 
     while waypoints:
         p = best_waypoint_ratio_reward_to_energy(waypoints, drone1)
-        if is_augmentable(M, p, drone1):
+        if is_augmentable(M, p, drone1, depo):
             M.add_waypoint(p)
             drone1.fly_to_waypoint(p)
 
@@ -27,9 +27,8 @@ def MRE(
 
     M.add_depo(depo)
 
-      
-    M.total_cost += M.distance_to_depo(M.flying_path[-2])
-    M.flying_cost += M.distance_to_depo(M.flying_path[-2])
+    M.total_cost += M.distance_to_depo(depo, M.flying_path[-2])
+    M.flying_cost += M.distance_to_depo(depo, M.flying_path[-2])
     return M
 
 
@@ -40,12 +39,9 @@ def best_waypoint_ratio_reward_to_energy(
     best_waypoint = None
 
     for p in waypoints:
-       
-
         total_reward = p.max_reward
 
         total_energy = drone.flying_cost_to_waypoint(p) + p.hovering_cost
-
 
         if total_energy == 0:
             continue
@@ -55,7 +51,6 @@ def best_waypoint_ratio_reward_to_energy(
         if ratio > best_ratio:
             best_ratio = ratio
             best_waypoint = p
-
 
         p.flying_cost = drone.flying_cost_to_waypoint(p)
     return best_waypoint

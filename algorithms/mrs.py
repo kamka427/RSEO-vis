@@ -16,7 +16,7 @@ def MRS(
 
     while waypoints:
         p = best_waypoint_ratio_reward_to_storage(waypoints, drone1)
-        if is_augmentable(M, p, drone1):
+        if is_augmentable(M, p, drone1, depo):
             M.add_waypoint(p)
             drone1.fly_to_waypoint(p)
 
@@ -27,24 +27,20 @@ def MRS(
 
     M.add_depo(depo)
 
-      
-    M.total_cost += M.distance_to_depo(M.flying_path[-2])
-    M.flying_cost += M.distance_to_depo(M.flying_path[-2])
+    M.total_cost += M.distance_to_depo(depo, M.flying_path[-2])
+    M.flying_cost += M.distance_to_depo(depo, M.flying_path[-2])
     return M
 
 
 def best_waypoint_ratio_reward_to_storage(
-waypoints: list[Waypoint], drone: Drone
+    waypoints: list[Waypoint], drone: Drone
 ) -> Waypoint:
     best_ratio = 0
     best_waypoint = None
 
     for p in waypoints:
-
-
         total_reward = p.max_reward
         total_storage = p.data_size
-
 
         if total_storage == 0:
             continue
