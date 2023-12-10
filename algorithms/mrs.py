@@ -12,41 +12,39 @@ def MRS(
 ) -> Mission:
     M = Mission([], 0)
 
-    while len(waypoints) > 0:
-        p = best_waypoint_ratio_reward_to_storage(sensors, waypoints, drone)
-        if is_augmentable(M, p, drone):
-            M.add_waypoint(p)
+    drone1 = Drone(drone.energy, drone.storage)
 
-        print(f"""p = {p}""")
+    while waypoints:
+        p = best_waypoint_ratio_reward_to_storage(waypoints, drone1)
+        if is_augmentable(M, p, drone1):
+            M.add_waypoint(p)
+            drone1.fly_to_waypoint(p)
+
         if p is None:
             break
+
         waypoints.remove(p)
 
-    # add depo to the mission
     M.add_depo(depo)
 
+      
+    M.total_cost += M.distance_to_depo(M.flying_path[-2])
+    M.flying_cost += M.distance_to_depo(M.flying_path[-2])
     return M
 
 
 def best_waypoint_ratio_reward_to_storage(
-    sensors: list[Sensor], waypoints: list[Waypoint], drone: Drone
+waypoints: list[Waypoint], drone: Drone
 ) -> Waypoint:
     best_ratio = 0
     best_waypoint = None
 
-    print(f"Number of waypoints: {len(waypoints)}")
     for p in waypoints:
-        if not is_augmentable(None, p, drone):
-            continue
 
-        reachable_sensors = p.reachable_sensors
-        reachable_sensors = [
-            sensor for sensor in reachable_sensors if sensor not in sensors
-        ]
+
         total_reward = p.max_reward
         total_storage = p.data_size
 
-        print(f"Total reward: {total_reward}, Total storage: {total_storage}")
 
         if total_storage == 0:
             continue
@@ -57,4 +55,5 @@ def best_waypoint_ratio_reward_to_storage(
             best_ratio = ratio
             best_waypoint = p
 
+        # p.flying_cost =  drone.flying_cost_to_waypoint(p)
     return best_waypoint

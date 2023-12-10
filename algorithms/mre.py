@@ -44,7 +44,6 @@ def best_waypoint_ratio_reward_to_energy(
 
         total_reward = p.max_reward
 
-        print(p.name, drone.flying_cost_to_waypoint(p), p.hovering_cost)
         total_energy = drone.flying_cost_to_waypoint(p) + p.hovering_cost
 
 

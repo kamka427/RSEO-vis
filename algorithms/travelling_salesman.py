@@ -3,6 +3,7 @@ from itertools import permutations
 
 from objects.waypoint import Waypoint
 from objects.mission import Mission
+from objects.drone import Drone
 
 
 """
@@ -10,11 +11,10 @@ This function returns the less energy consuming path for the given waypoints fro
 """
 
 
-
 def travellingSalesmanProblem(drone, selected_waypoints):
-    print(drone)
+    drone = Drone(drone.energy, drone.storage)
     n = len(selected_waypoints)
-    
+
     if n == 0:
         return Mission([], 0)
 
@@ -29,19 +29,18 @@ def travellingSalesmanProblem(drone, selected_waypoints):
         for i in range(n):
             if not visited[i]:
                 temp_distance = drone.flying_cost_to_waypoint(selected_waypoints[i])
-                print(temp_distance)
                 if temp_distance < nearest_distance:
                     nearest_distance = temp_distance
                     nearest = i
         visited[nearest] = True
         path.append(selected_waypoints[nearest])
         total_cost += nearest_distance
+
         drone.x = selected_waypoints[nearest].x
         drone.y = selected_waypoints[nearest].y
 
-
     # Add cost to return to the starting point
-    total_cost += drone.flying_cost_to_waypoint(selected_waypoints[0])
+
     path.append(selected_waypoints[0])
 
     return Mission(path, total_cost)

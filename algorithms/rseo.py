@@ -32,12 +32,19 @@ def RSEO(
     ]
 
     sorted_removable_waypoints = sorted(removable_waypoints, key=lambda waypoint: waypoint.max_reward)
+    M.total_cost += M.distance_to_depo(M.flying_path[-2])
+    M.flying_cost += M.distance_to_depo(M.flying_path[-2])
+    distance_to_depo = M.distance_to_depo(M.flying_path[-2])
 
     while M.total_cost > drone.energy and M.flying_path:
-        print(f"Total cost: {M.total_cost}, Energy: {drone.energy}")
         # Remove the waypoint with the least reward from the sorted list
         if sorted_removable_waypoints:
             waypoint_to_remove = sorted_removable_waypoints.pop(0)
+            if waypoint_to_remove == M.flying_path[-2]:
+                M.total_cost -= distance_to_depo
+                M.flying_cost -= distance_to_depo
+                
+                
             M.remove_waypoint(waypoint_to_remove)
 
     return M

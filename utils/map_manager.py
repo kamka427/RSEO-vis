@@ -51,11 +51,11 @@ class MapManager:
             for waypoint in data["waypoints"]
         ]
 
-        print(self.waypointHandler.waypoint_list)
-        print("Sensors:")
-        for waypoint in self.waypointHandler.waypoint_list:
-            for sensor in waypoint.reachable_sensors:
-                print(sensor)
+        # print(self.waypointHandler.waypoint_list)
+        # print("Sensors:")
+        # for waypoint in self.waypointHandler.waypoint_list:
+        #     for sensor in waypoint.reachable_sensors:
+        #         print(sensor)
 
         self.sensorHandler.redraw_simulation()
         self.waypointHandler.redraw_simulation()

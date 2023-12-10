@@ -10,6 +10,7 @@ class Mission:
         self.hovering_cost = sum(waypoint.hovering_cost for waypoint in flying_path)
         self.total_cost = self.flying_cost + self.hovering_cost
         self.data_size = sum(waypoint.data_size for waypoint in flying_path)
+        self.reward = sum(waypoint.max_reward for waypoint in flying_path)
 
     def __str__(self):
         path = " -> ".join(
@@ -44,6 +45,7 @@ class Mission:
             self.hovering_cost -= waypoint.hovering_cost
             self.total_cost -= waypoint.flying_cost + waypoint.hovering_cost
             self.data_size -= waypoint.data_size
+            self.reward -= waypoint.max_reward
 
     def add_waypoint(self, waypoint: Waypoint):
         if waypoint not in self.flying_path:
@@ -52,6 +54,7 @@ class Mission:
             self.hovering_cost += waypoint.hovering_cost
             self.total_cost += waypoint.flying_cost + waypoint.hovering_cost
             self.data_size += waypoint.data_size
+            self.reward += waypoint.max_reward
 
     def add_depo(self, depo: Depo):
         # add to the beginning of the mission
@@ -66,7 +69,7 @@ class Mission:
         )
         self.flying_path.insert(0, w_depo)
         self.flying_path.append(w_depo)
-        self.total_cost += w_depo.flying_cost
+
 
     def distance_to_depo(self, waypoint: Waypoint):
         return int(

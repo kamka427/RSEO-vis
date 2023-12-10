@@ -25,7 +25,11 @@ def GreedySetCover(X: set[Sensor], waypoints: set[Waypoint]) -> set:
         if selected_waypoint is None:
             break
 
-        I.add(selected_waypoint)  # Include the waypoint with the maximum intersection into the set cover
-        X = X.difference(set(selected_waypoint.reachable_sensors))  # Ensure the argument to difference is a set
+        I.add(
+            selected_waypoint
+        )  # Include the waypoint with the maximum intersection into the set cover
+        X = X.difference(
+            set(selected_waypoint.reachable_sensors)
+        )  # Ensure the argument to difference is a set
 
     return list(I)

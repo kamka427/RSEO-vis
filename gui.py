@@ -34,9 +34,9 @@ w2 = Waypoint("w2", 200, 200, sensor_list, 15)
 waypoint_list = [w1, w2]
 
 drone1 = Drone(100, 100)
-drone2 = Drone(200, 200)
+# drone2 = Drone(200, 200)
 
-drone_list = [drone1, drone2]
+drone_list = [drone1]
 
 depo = Depo(0, 0)
 
@@ -58,25 +58,22 @@ mapManager = MapManager(sensorHandler, waypointHandler)
 
 
 def start_simulation(sender, data):
-    print("The path for the drones:")
-
     sensors = sensorHandler.sensor_list.copy()
     waypoints = waypointHandler.waypoint_list.copy()
 
     selected_algorithm = dpg.get_value(item=algorithm_c)
     # Assume drones is a list of Drone objects
     drones = droneHandler.drone_list.copy()
-    print("len drones", len(droneHandler.drone_list))
     drone_paths = []
 
     for i, drone in enumerate(drones):
         M = None
         if selected_algorithm == "RSEO":
-            M = RSEO(drone, depo, sensors, waypoints)
+            M = RSEO(drone, depo, sensors.copy(), waypoints.copy())
         elif selected_algorithm == "MRE":
-            M = MRE(drone, depo, sensors, waypoints.copy())
+            M = MRE(drone, depo, sensors.copy(), waypoints.copy())
         elif selected_algorithm == "MRS":
-            M = MRS(drone, depo, sensors, waypoints.copy())
+            M = MRS(drone, depo, sensors.copy(), waypoints.copy())
 
         if M is not None:
             print(M)
@@ -89,6 +86,7 @@ def start_simulation(sender, data):
                 break
 
             # Remove visited waypoints from the list for the next drone
+
             waypoints = [wp for wp in waypoints if wp not in M.flying_path]
             print("len waypoints", len(waypoints))
 

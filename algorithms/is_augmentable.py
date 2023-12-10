@@ -9,12 +9,10 @@ def is_augmentable(M: Mission, p: Waypoint, drone: Drone) -> bool:
     
     # check if depo is reachable
 
-    print(p.flying_cost + p.hovering_cost + M.total_cost + (len(M.flying_path) and M.distance_to_depo(p)))
+    
 
     if p.flying_cost + p.hovering_cost + M.total_cost + (len(M.flying_path) and M.distance_to_depo(p)) > drone.energy:
         
-      
-
         return False
 
     if p.data_size + M.data_size > drone.storage:
